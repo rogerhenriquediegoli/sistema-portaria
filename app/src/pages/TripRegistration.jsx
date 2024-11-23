@@ -1,54 +1,34 @@
-import React, { useState } from 'react';
-import './TripRegistration.css';
+import React from "react";
+import { Link } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import "./TripRegistration.css";
 
 const TripRegistration = () => {
-  const [trip, setTrip] = useState({
-    carro: '',
-    motorista: '',
-    quilometragemSaida: '',
-    quilometragemRetorno: '',
-    status: 'Em viagem',
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setTrip({ ...trip, [name]: value });
-  };
-
   return (
-    <div className="trip-registration">
-      <h2>Registrar Viagem</h2>
-      <form>
-        <input
-          type="text"
-          name="carro"
-          placeholder="Carro"
-          value={trip.carro}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="motorista"
-          placeholder="Motorista"
-          value={trip.motorista}
-          onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="quilometragemSaida"
-          placeholder="Quilometragem de Saída"
-          value={trip.quilometragemSaida}
-          onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="quilometragemRetorno"
-          placeholder="Quilometragem de Retorno"
-          value={trip.quilometragemRetorno}
-          onChange={handleChange}
-        />
-        <button type="submit">Registrar Viagem</button>
-      </form>
+    <div className="register-trip">
+      <Header />
+      <main className="container my-5">
+        <div className="card shadow">
+          <div className="card-header bg-primary text-white">
+            <h4>
+              <i className="bi bi-arrow-left-right"></i> Registrar Viagem
+            </h4>
+          </div>
+          <div className="card-body text-center">
+            <p>Escolha uma ação:</p>
+            <div className="d-flex justify-content-center">
+              <Link to="/register-trip-exit" className="btn btn-success mx-2">
+                Registrar Saída
+              </Link>
+              <Link to="/register-trip" className="btn btn-warning mx-2">
+                Registrar Entrada
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 };

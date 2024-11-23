@@ -1,5 +1,5 @@
 header {
-    position: fixed;
+    position: block;
     top: 0;
     left: 50%;
     transform: translateX(-50%); /* Centraliza horizontalmente */
@@ -7,7 +7,7 @@ header {
     max-width: 1360px; /* Limita a largura máxima para não ocupar muito espaço em telas grandes */
     background-color: #343a40; /* Cor de fundo */
     color: white;
-    z-index: 1000; /* Para garantir que fique acima de outros conteúdos */
+    margin-bottom: 100px;
     padding: 20px 0; /* Espaço interno */
     box-sizing: border-box; /* Inclui padding e border no cálculo da largura */
   }

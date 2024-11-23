@@ -6,6 +6,7 @@ import DriverManagement from './pages/DriverManagement';
 import TripRegistration from './pages/TripRegistration';
 import CarReservation from './pages/CarReservation';
 import TripHistory from './pages/TripHistory';
+import TripHistoryExit from './pages/TripRegistrationExit';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -24,6 +25,8 @@ function App() {
         <Route path="/register-trip" element={<TripRegistration />} />
         <Route path="/reserve-car" element={<CarReservation />} />
         <Route path="/trip-history" element={<TripHistory />} />
+        <Route path="/register-trip-exit" element={<TripHistoryExit />} />
+
       </Routes>
     </Router>
   );
