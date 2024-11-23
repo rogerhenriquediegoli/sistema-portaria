@@ -1,0 +1,20 @@
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%); /* Centraliza horizontalmente */
+    width: 90%; /* Usando uma largura flexível em vez de 100% */
+    max-width: 1360px; /* Limita a largura máxima para não ocupar muito espaço em telas grandes */
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    z-index: 1000; /* Para garantir que fique acima de outros conteúdos */
+    box-sizing: border-box; /* Inclui padding e border no cálculo da largura */
+  }
+  
+  footer p {
+    font-size: 1rem;
+    margin: 0;
+  }
+  
