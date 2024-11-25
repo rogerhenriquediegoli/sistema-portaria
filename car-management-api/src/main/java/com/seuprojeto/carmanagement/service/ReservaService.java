@@ -40,19 +40,6 @@ public class ReservaService {
         return reservaRepository.findById(idReserva);
     }
 
-    public Reserva createReserva(Reserva reserva) {
-        return reservaRepository.save(reserva);
-    }
-
-    public Reserva updateReserva(Long idReserva, Reserva reserva) {
-        if (reservaRepository.existsById(idReserva)) {
-            reserva.setIdReserva(idReserva);
-            return reservaRepository.save(reserva);
-        } else {
-            return null;
-        }
-    }
-
     public void deleteReserva(Long idReserva) {
         reservaRepository.deleteById(idReserva);
     }
@@ -72,26 +59,41 @@ public class ReservaService {
             throw new IllegalArgumentException("O motorista selecionado não está disponível para reserva.");
         }
 
-        // Verifica validade da CNH
-        LocalDate validadeCnh = motorista.getValidadeCnh();
-        if (ChronoUnit.DAYS.between(dataFim, validadeCnh) < 15) {
-            throw new IllegalArgumentException("A data final da reserva não pode ser próxima do vencimento da CNH.");
-        }
+        // Valida proximidade da data de vencimento da CNH
+        validarDataReserva(dataFim, motorista.getValidadeCnh());
 
-        // Atualiza status do carro
-        carro.setStatus("Reservado");
-        carroRepository.save(carro);
-
-        // Cria a reserva
+        // Criação da reserva
         Reserva reserva = new Reserva();
-        reserva.setCarro(carro);
-        reserva.setMotorista(motorista);
+        reserva.setCarroId(carro.getIdCarro());  // Usando o ID do carro
+        reserva.setMotoristaId(motorista.getIdMotorista());  // Usando o ID do motorista
         reserva.setDataFim(dataFim);
         reserva.setStatus("Ativa");
+
+        // Atualiza o status do carro
+        carro.setStatus("Reservado");
+        carroRepository.save(carro);
 
         return reservaRepository.save(reserva);
     }
 
+
+    public void validarDataReserva(LocalDate dataFimReserva, LocalDate validadeCNH) {
+        // Verifica se a data de fim da reserva é futura
+        if (!dataFimReserva.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException(
+                    "A data final da reserva deve ser uma data futura. Não pode ser a data atual nem uma data anterior."
+            );
+        }
+
+        // Verifica se há pelo menos 15 dias de diferença entre a data final da reserva e a validade da CNH
+        long diasEntre = ChronoUnit.DAYS.between(dataFimReserva, validadeCNH);
+
+        if (diasEntre < 15) {
+            throw new IllegalArgumentException(
+                    "Não é permitido criar a reserva. É necessário que a data final da reserva seja, no mínimo, 15 dias antes do vencimento da CNH."
+            );
+        }
+    }
 
     /**
      * Cancela uma reserva existente.
@@ -100,7 +102,7 @@ public class ReservaService {
     @Transactional
     public void cancelarReserva(Long idReserva) throws ChangeSetPersister.NotFoundException {
         Reserva reserva = reservaRepository.findById(idReserva)
-                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
 
         if ("Cancelada".equals(reserva.getStatus()) || "Concluído".equals(reserva.getStatus())) {
             throw new IllegalStateException("A reserva já foi cancelada ou concluída.");
@@ -109,7 +111,7 @@ public class ReservaService {
         reserva.setStatus("Cancelada");
         reservaRepository.save(reserva);
 
-        carroService.alterarStatus(reserva.getCarro().getIdCarro(), "Disponível");
+        carroService.alterarStatus(reserva.getCarroId(), "Disponível");
     }
 
     /**
@@ -128,15 +130,17 @@ public class ReservaService {
         reserva.setStatus("Concluído");
         reservaRepository.save(reserva);
 
-        carroService.alterarStatus(reserva.getCarro().getIdCarro(), "Disponível");
+        carroService.alterarStatus(reserva.getCarroId(), "Disponível");
     }
 
-    public void validarDataReserva(LocalDate dataFimReserva, LocalDate validadeCNH) {
-        // Define o limite de proximidade (ex.: 15 dias antes do vencimento)
-        long diasRestantes = ChronoUnit.DAYS.between(LocalDate.now(), validadeCNH);
-
-        if (diasRestantes <= 15 && dataFimReserva.isAfter(validadeCNH.minusDays(15))) {
-            throw new IllegalArgumentException("A data final da reserva não pode ser próxima do vencimento da CNH.");
-        }
+    /**
+     * Verifica se existe uma reserva ativa para o carro e motorista.
+     *
+     * @param carroId     ID do carro.
+     * @param motoristaId ID do motorista.
+     * @return true se existe uma reserva ativa; false caso contrário.
+     */
+    public boolean existsByCarroIdAndMotoristaIdAndStatus(Long carroId, Long motoristaId, String status) {
+        return reservaRepository.existsByCarroIdAndMotoristaIdAndStatus(carroId, motoristaId, status);
     }
 }

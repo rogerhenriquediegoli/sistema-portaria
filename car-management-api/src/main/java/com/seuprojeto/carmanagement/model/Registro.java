@@ -12,13 +12,11 @@ public class Registro {
     @Column(name = "idregistro")
     private Long idRegistro;
 
-    @ManyToOne
-    @JoinColumn(name = "motorista_id", referencedColumnName = "idmotorista")
-    private Motorista motorista;
+    @Column(name = "motorista_id", nullable = false)
+    private Long motoristaId;
 
-    @ManyToOne
-    @JoinColumn(name = "carro_id", referencedColumnName = "idcarro")
-    private Carro carro;
+    @Column(name = "carro_id", nullable = false)
+    private Long carroId;
 
     @Column(name = "datasaida", nullable = false)
     private LocalDateTime dataSaida;
@@ -50,20 +48,20 @@ public class Registro {
         this.idRegistro = idRegistro;
     }
 
-    public Motorista getMotorista() {
-        return motorista;
+    public Long getMotoristaId() {
+        return motoristaId;
     }
 
-    public void setMotorista(Motorista motorista) {
-        this.motorista = motorista;
+    public void setMotoristaId(Long motoristaId) {
+        this.motoristaId = motoristaId;
     }
 
-    public Carro getCarro() {
-        return carro;
+    public Long getCarroId() {
+        return carroId;
     }
 
-    public void setCarro(Carro carro) {
-        this.carro = carro;
+    public void setCarroId(Long carroId) {
+        this.carroId = carroId;
     }
 
     public LocalDateTime getDataSaida() {

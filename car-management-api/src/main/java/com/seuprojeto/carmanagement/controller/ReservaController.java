@@ -7,6 +7,7 @@ import com.seuprojeto.carmanagement.service.CarroService;
 import com.seuprojeto.carmanagement.service.MotoristaService;
 import com.seuprojeto.carmanagement.service.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,29 +45,33 @@ public class ReservaController {
     }
 
     @PostMapping
-    public String criarReserva(
+    public ResponseEntity<String> criarReserva(
             @RequestParam Long motoristaId,
             @RequestParam Long carroId,
             @RequestParam String dataFim) {
 
-        // Converte a data de string para LocalDate
-        LocalDate dataFimConvertida;
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            dataFimConvertida = LocalDate.parse(dataFim, formatter);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Formato de data inválido. Use 'yyyy-MM-dd'.");
-        }
+            // Converte a data de string para LocalDate
+            LocalDate dataFimConvertida = LocalDate.parse(dataFim, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        // Chama o método do serviço para criar a reserva
-        reservaService.createReserva(carroId, motoristaId, dataFimConvertida);
-        return "Reserva criada com sucesso!";
+            // Chama o serviço para criar a reserva
+            reservaService.createReserva(carroId, motoristaId, dataFimConvertida);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Reserva criada com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
-    @PutMapping("/{idReserva}")
-    public ResponseEntity<Reserva> updateReserva(@PathVariable Long idReserva, @RequestBody Reserva reserva) {
-        Reserva updatedReserva = reservaService.updateReserva(idReserva, reserva);
-        return updatedReserva != null ? ResponseEntity.ok(updatedReserva) : ResponseEntity.notFound().build();
+    @PutMapping("/{idReserva}/cancelar")
+    public ResponseEntity<String> cancelarReserva(@PathVariable Long idReserva) {
+        try {
+            reservaService.cancelarReserva(idReserva);
+            return ResponseEntity.ok("Reserva cancelada com sucesso.");
+        } catch (ChangeSetPersister.NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reserva não encontrada.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{idReserva}")

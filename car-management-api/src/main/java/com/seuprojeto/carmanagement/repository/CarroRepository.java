@@ -29,4 +29,8 @@ public interface CarroRepository extends JpaRepository<Carro, Long> { // Alterad
     @Query("SELECT c FROM Carro c WHERE c.status = 'Disponível'")
     List<Carro> findAvailableCars();
 
+    @Query("SELECT c FROM Carro c WHERE c.status = 'Reservado'")
+    List<Carro> findReservedCars();
+
+
 }

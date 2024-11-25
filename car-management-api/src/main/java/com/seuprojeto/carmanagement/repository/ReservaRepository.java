@@ -6,5 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
-    // Não há métodos adicionais neste momento
+    // Método derivado que automaticamente gera a consulta para verificar se existe uma reserva ativa
+    boolean existsByCarroIdAndMotoristaIdAndStatus(Long carroId, Long motoristaId, String status);
+
 }

@@ -121,4 +121,9 @@ public class CarroService {
         carroRepository.save(carro);
     }
 
+    public List<Carro> getReservedCars() {
+        return carroRepository.findReservedCars();
+    }
+
+
 }

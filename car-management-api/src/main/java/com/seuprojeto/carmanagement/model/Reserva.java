@@ -13,19 +13,17 @@ public class Reserva {
     @Column(name = "idreserva")
     private Long idReserva;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "motorista_id", referencedColumnName = "idmotorista", nullable = false)
-    private Motorista motorista;
+    @Column(name = "motorista_id", nullable = false)
+    private Long motoristaId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "carro_id", referencedColumnName = "idcarro", nullable = false)
-    private Carro carro;
+    @Column(name = "carro_id", nullable = false)
+    private Long carroId;
 
     @Column(name = "datafim", nullable = false)
     private LocalDate dataFim;
 
     @Column(name = "status", nullable = false, length = 20)
-    private String status; // Valores possíveis: "Ativa", "Concluída", "Cancelada"
+    private String status;
 
     // Getters e Setters
     public Long getIdReserva() {
@@ -36,20 +34,20 @@ public class Reserva {
         this.idReserva = idReserva;
     }
 
-    public Motorista getMotorista() {
-        return motorista;
+    public Long getMotoristaId() {
+        return motoristaId;
     }
 
-    public void setMotorista(Motorista motorista) {
-        this.motorista = motorista;
+    public void setMotoristaId(Long motoristaId) {
+        this.motoristaId = motoristaId;
     }
 
-    public Carro getCarro() {
-        return carro;
+    public Long getCarroId() {
+        return carroId;
     }
 
-    public void setCarro(Carro carro) {
-        this.carro = carro;
+    public void setCarroId(Long carroId) {
+        this.carroId = carroId;
     }
 
     public LocalDate getDataFim() {
