@@ -1,13 +1,22 @@
 package com.seuprojeto.carmanagement.controller;
 
+import com.seuprojeto.carmanagement.model.Carro;
+import com.seuprojeto.carmanagement.model.Motorista;
 import com.seuprojeto.carmanagement.model.Reserva;
+import com.seuprojeto.carmanagement.service.CarroService;
+import com.seuprojeto.carmanagement.service.MotoristaService;
 import com.seuprojeto.carmanagement.service.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -16,6 +25,12 @@ public class ReservaController {
 
     @Autowired
     private ReservaService reservaService;
+
+    @Autowired
+    private CarroService carroService;
+
+    @Autowired
+    private MotoristaService motoristaService;
 
     @GetMapping
     public List<Reserva> getAllReservas() {
@@ -29,9 +44,23 @@ public class ReservaController {
     }
 
     @PostMapping
-    public ResponseEntity<Reserva> createReserva(@RequestBody Reserva reserva) {
-        Reserva createdReserva = reservaService.createReserva(reserva);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdReserva);
+    public String criarReserva(
+            @RequestParam Long motoristaId,
+            @RequestParam Long carroId,
+            @RequestParam String dataFim) {
+
+        // Converte a data de string para LocalDate
+        LocalDate dataFimConvertida;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            dataFimConvertida = LocalDate.parse(dataFim, formatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Formato de data inválido. Use 'yyyy-MM-dd'.");
+        }
+
+        // Chama o método do serviço para criar a reserva
+        reservaService.createReserva(carroId, motoristaId, dataFimConvertida);
+        return "Reserva criada com sucesso!";
     }
 
     @PutMapping("/{idReserva}")
@@ -44,5 +73,16 @@ public class ReservaController {
     public ResponseEntity<Void> deleteReserva(@PathVariable Long idReserva) {
         reservaService.deleteReserva(idReserva);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/disponiveis")
+    public ResponseEntity<Map<String, List<?>>> getAvailableResources() {
+        List<Carro> availableCars = carroService.getAvailableCars();
+        List<Motorista> availableDrivers = motoristaService.getAvailableDrivers();
+
+        return ResponseEntity.ok(Map.of(
+                "carrosDisponiveis", availableCars,
+                "motoristasDisponiveis", availableDrivers
+        ));
     }
 }

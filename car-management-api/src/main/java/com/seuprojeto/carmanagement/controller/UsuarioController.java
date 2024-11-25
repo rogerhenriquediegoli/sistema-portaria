@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,10 +29,14 @@ public class UsuarioController {
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<Usuario> createUsuario(@RequestBody Usuario usuario) {
-        Usuario createdUsuario = usuarioService.createUsuario(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUsuario);
+    @PostMapping("/cadastro")
+    public ResponseEntity<Usuario> createUsuario(@RequestBody @Valid Usuario usuario) {
+        try {
+            Usuario createdUsuario = usuarioService.cadastrarUsuario(usuario);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUsuario);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // Mensagem de erro no cadastro
+        }
     }
 
     @PutMapping("/{idUsuario}")
@@ -44,5 +49,16 @@ public class UsuarioController {
     public ResponseEntity<Void> deleteUsuario(@PathVariable Long idUsuario) {
         usuarioService.deleteUsuario(idUsuario);
         return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint de Login
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestParam String identificador, @RequestParam String senha) {
+        try {
+            Long idUsuario = usuarioService.login(identificador, senha);
+            return ResponseEntity.ok(idUsuario);  // Retorna o ID do usuário logado
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  // Mensagem de erro no login
+        }
     }
 }

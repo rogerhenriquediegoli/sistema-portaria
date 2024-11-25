@@ -4,40 +4,42 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "registro")
 public class Registro {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idregistro")
     private Long idRegistro;
 
     @ManyToOne
-    @JoinColumn(name = "motorista_cpf", referencedColumnName = "cpf")
+    @JoinColumn(name = "motorista_id", referencedColumnName = "idmotorista")
     private Motorista motorista;
 
     @ManyToOne
-    @JoinColumn(name = "carro_placa", referencedColumnName = "placa")
+    @JoinColumn(name = "carro_id", referencedColumnName = "idcarro")
     private Carro carro;
 
-    @Column(name = "datasaida")
+    @Column(name = "datasaida", nullable = false)
     private LocalDateTime dataSaida;
 
     @Column(name = "dataentrada")
     private LocalDateTime dataEntrada;
 
-    @Column(name = "quilometragemsaida")
-    private int quilometragemSaida;
+    @Column(name = "quilometragemsaida", nullable = false)
+    private Integer quilometragemSaida;
 
     @Column(name = "quilometragementrada")
-    private int quilometragemEntrada;
+    private Integer quilometragemEntrada;
 
-    @Column(name = "nivelcombustivelsaida")
-    private Integer nivelCombustivelSaida;
+    @Column(name = "nivelcombustivelsaida", nullable = false)
+    private Double nivelCombustivelSaida;
 
     @Column(name = "nivelcombustivelentrada")
-    private Integer nivelCombustivelEntrada;
+    private Double nivelCombustivelEntrada;
 
     @Column(name = "abastecimentoextra")
-    private Integer abastecimentoExtra;
+    private Double abastecimentoExtra;
 
     // Getters e Setters
     public Long getIdRegistro() {
@@ -80,43 +82,43 @@ public class Registro {
         this.dataEntrada = dataEntrada;
     }
 
-    public int getQuilometragemSaida() {
+    public Integer getQuilometragemSaida() {
         return quilometragemSaida;
     }
 
-    public void setQuilometragemSaida(int quilometragemSaida) {
+    public void setQuilometragemSaida(Integer quilometragemSaida) {
         this.quilometragemSaida = quilometragemSaida;
     }
 
-    public int getQuilometragemEntrada() {
+    public Integer getQuilometragemEntrada() {
         return quilometragemEntrada;
     }
 
-    public void setQuilometragemEntrada(int quilometragemEntrada) {
+    public void setQuilometragemEntrada(Integer quilometragemEntrada) {
         this.quilometragemEntrada = quilometragemEntrada;
     }
 
-    public Integer getNivelCombustivelSaida() {
+    public Double getNivelCombustivelSaida() {
         return nivelCombustivelSaida;
     }
 
-    public void setNivelCombustivelSaida(Integer nivelCombustivelSaida) {
+    public void setNivelCombustivelSaida(Double nivelCombustivelSaida) {
         this.nivelCombustivelSaida = nivelCombustivelSaida;
     }
 
-    public Integer getNivelCombustivelEntrada() {
+    public Double getNivelCombustivelEntrada() {
         return nivelCombustivelEntrada;
     }
 
-    public void setNivelCombustivelEntrada(Integer nivelCombustivelEntrada) {
+    public void setNivelCombustivelEntrada(Double nivelCombustivelEntrada) {
         this.nivelCombustivelEntrada = nivelCombustivelEntrada;
     }
 
-    public Integer getAbastecimentoExtra() {
+    public Double getAbastecimentoExtra() {
         return abastecimentoExtra;
     }
 
-    public void setAbastecimentoExtra(Integer abastecimentoExtra) {
+    public void setAbastecimentoExtra(Double abastecimentoExtra) {
         this.abastecimentoExtra = abastecimentoExtra;
     }
 }

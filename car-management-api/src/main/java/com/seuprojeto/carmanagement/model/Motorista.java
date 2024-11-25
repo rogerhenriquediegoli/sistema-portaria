@@ -1,33 +1,47 @@
 package com.seuprojeto.carmanagement.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
+
+import java.math.BigInteger;
+import java.time.LocalDate;
 
 @Entity
+@Table(name = "motorista")
 public class Motorista {
-    @Id
-    @Column(name = "cpf")
-    private String cpf;
 
-    @Column(name = "nome")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idmotorista")
+    private Long idMotorista;
+
+    @Column(name = "cpf", unique = true, nullable = false)
+    private Long cpf;
+
+    @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "validadecnh")  // Coluna sem sublinhado
-    private String validadeCnh;
-
-    @Column(name = "telefone")
-    private String telefone;
+    @JsonFormat (pattern = "yyyy-MM-dd")
+    @Column(name = "validade_cnh", nullable = false)
+    private LocalDate validadeCnh;
 
     // Getters e Setters
-    public String getCpf() {
+    public Long getIdMotorista() {
+        return idMotorista;
+    }
+
+    public void setIdMotorista(Long idMotorista) {
+        this.idMotorista = idMotorista;
+    }
+
+    public Long getCpf() {
         return cpf;
     }
 
-    public void setCpf(String cpf) {
+    public void setCpf(Long cpf) {
         this.cpf = cpf;
     }
 
@@ -47,19 +61,11 @@ public class Motorista {
         this.status = status;
     }
 
-    public String getValidadeCnh() {
+    public LocalDate getValidadeCnh() {
         return validadeCnh;
     }
 
-    public void setValidadeCnh(String validadeCnh) {
+    public void setValidadeCnh(LocalDate validadeCnh) {
         this.validadeCnh = validadeCnh;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
     }
 }

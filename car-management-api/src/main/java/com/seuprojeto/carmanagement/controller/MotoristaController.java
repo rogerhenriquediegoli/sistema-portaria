@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/motoristas")
@@ -22,27 +21,43 @@ public class MotoristaController {
         return motoristaService.getAllMotoristas();
     }
 
-    @GetMapping("/{cpf}")
-    public ResponseEntity<Motorista> getMotoristaById(@PathVariable Long cpf) {
-        Optional<Motorista> motorista = motoristaService.getMotoristaById(cpf);
-        return motorista.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/{id}")
+    public ResponseEntity<Motorista> getMotoristaById(@PathVariable Long id) {
+        return motoristaService.getMotoristaById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Motorista> createMotorista(@RequestBody Motorista motorista) {
-        Motorista createdMotorista = motoristaService.createMotorista(motorista);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdMotorista);
+    public ResponseEntity<?> createMotorista(@RequestBody Motorista motorista) {
+        try {
+            Motorista createdMotorista = motoristaService.createMotorista(motorista);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdMotorista);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @PutMapping("/{cpf}")
-    public ResponseEntity<Motorista> updateMotorista(@PathVariable Long cpf, @RequestBody Motorista motorista) {
-        Motorista updatedMotorista = motoristaService.updateMotorista(cpf, motorista);
-        return updatedMotorista != null ? ResponseEntity.ok(updatedMotorista) : ResponseEntity.notFound().build();
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateMotorista(@PathVariable Long id, @RequestBody Motorista motorista) {
+        try {
+            Motorista updatedMotorista = motoristaService.updateMotorista(id, motorista);
+            return ResponseEntity.ok(updatedMotorista);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @DeleteMapping("/{cpf}")
-    public ResponseEntity<Void> deleteMotorista(@PathVariable Long cpf) {
-        motoristaService.deleteMotorista(cpf);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMotorista(@PathVariable Long id) {
+        motoristaService.deleteMotorista(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/count-status")
+    public ResponseEntity<String> getMotoristasCountByStatus() {
+        String countByStatus = motoristaService.getMotoristasCountByStatus();
+        return ResponseEntity.ok(countByStatus);
+    }
+
 }
