@@ -24,11 +24,25 @@ public class UsuarioService {
         return usuarioRepository.findById(idUsuario);
     }
 
-    // Cria um novo usuário com validação
     public Usuario cadastrarUsuario(Usuario usuario) {
+        // Verificar se o nome de usuário está vazio
+        if (usuario.getNomeUsuario() == null || usuario.getNomeUsuario().isEmpty()) {
+            throw new IllegalArgumentException("O nome de usuário não pode estar vazio.");
+        }
+
         // Verificar se o nome de usuário já está em uso
         if (usuarioRepository.existsByNomeUsuario(usuario.getNomeUsuario())) {
             throw new IllegalArgumentException("Nome de usuário já em uso. Por favor, escolha outro nome de usuário.");
+        }
+
+        // Verificar se o e-mail está vazio
+        if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("O e-mail não pode estar vazio.");
+        }
+
+        // Validar o formato do e-mail (verificando se contém '@')
+        if (!usuario.getEmail().contains("@")) {
+            throw new IllegalArgumentException("O e-mail fornecido não é válido. Certifique-se de que contém '@'.");
         }
 
         // Verificar se o e-mail já está em uso
@@ -36,9 +50,15 @@ public class UsuarioService {
             throw new IllegalArgumentException("Já existe um usuário com esse e-mail. Por favor, use outro e-mail.");
         }
 
+        // Verificar se a senha está vazia
+        if (usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
+            throw new IllegalArgumentException("A senha não pode estar vazia.");
+        }
+
         // Salvar o novo usuário
         return usuarioRepository.save(usuario);
     }
+
 
     // Atualiza um usuário existente
     public Usuario updateUsuario(Long idUsuario, Usuario usuario) {

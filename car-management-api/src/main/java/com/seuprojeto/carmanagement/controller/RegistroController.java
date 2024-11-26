@@ -6,7 +6,9 @@ import com.seuprojeto.carmanagement.model.Registro;
 import com.seuprojeto.carmanagement.service.CarroService;
 import com.seuprojeto.carmanagement.service.MotoristaService;
 import com.seuprojeto.carmanagement.service.RegistroService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,13 +41,34 @@ public class RegistroController {
         return registro.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @PutMapping("/registroEntrada")
+    public ResponseEntity<Object> registrarEntrada(@RequestParam @NotNull Long carroId,
+                                                   @RequestParam @NotNull Long motoristaId,
+                                                   @RequestParam @NotNull int quilometragemEntrada) {
+        try {
+            // Chama o serviço para registrar a entrada com a quilometragem informada
+            Registro registroAtualizado = registroService.registrarEntrada(carroId, motoristaId, quilometragemEntrada);
+
+            // Retorna o status 200 (OK) com o registro atualizado
+            return ResponseEntity.ok(registroAtualizado);
+        } catch (IllegalArgumentException e) {
+            // Captura exceções e retorna a mensagem de erro no corpo da resposta
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", e.getMessage())  // Exibe a mensagem de erro
+            );
+        }
+    }
+
+
+    @PostMapping("registroSaida")
     public ResponseEntity<?> createRegistro(@RequestParam Long carroId, @RequestParam Long motoristaId) {
         try {
             Registro registro = registroService.createRegistro(carroId, motoristaId);
             return ResponseEntity.status(HttpStatus.CREATED).body(registro);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (ChangeSetPersister.NotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -72,3 +95,5 @@ public class RegistroController {
         ));
     }
 }
+
+

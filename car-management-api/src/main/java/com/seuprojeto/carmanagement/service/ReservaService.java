@@ -59,6 +59,12 @@ public class ReservaService {
             throw new IllegalArgumentException("O motorista selecionado não está disponível para reserva.");
         }
 
+        // Verifica se já existe uma reserva ativa para o motorista
+        boolean existeReservaAtiva = reservaRepository.existsByMotoristaIdAndStatus(motoristaId, "Ativa");
+        if (existeReservaAtiva) {
+            throw new IllegalArgumentException("O motorista já possui uma reserva ativa.");
+        }
+
         // Valida proximidade da data de vencimento da CNH
         validarDataReserva(dataFim, motorista.getValidadeCnh());
 
@@ -73,6 +79,7 @@ public class ReservaService {
         carro.setStatus("Reservado");
         carroRepository.save(carro);
 
+        // Salva a reserva
         return reservaRepository.save(reserva);
     }
 
@@ -127,20 +134,16 @@ public class ReservaService {
             throw new IllegalStateException("A reserva só pode ser concluída se estiver ativa.");
         }
 
-        reserva.setStatus("Concluído");
+        reserva.setStatus("Concluída");
         reservaRepository.save(reserva);
 
         carroService.alterarStatus(reserva.getCarroId(), "Disponível");
     }
 
-    /**
-     * Verifica se existe uma reserva ativa para o carro e motorista.
-     *
-     * @param carroId     ID do carro.
-     * @param motoristaId ID do motorista.
-     * @return true se existe uma reserva ativa; false caso contrário.
-     */
-    public boolean existsByCarroIdAndMotoristaIdAndStatus(Long carroId, Long motoristaId, String status) {
-        return reservaRepository.existsByCarroIdAndMotoristaIdAndStatus(carroId, motoristaId, status);
+    @Transactional
+    public Reserva buscarReservaAtiva(Long carroId, Long motoristaId) {
+        // Busca a reserva ativa vinculada ao carro e ao motorista
+        return reservaRepository.findByCarroIdAndMotoristaIdAndStatus(carroId, motoristaId, "Ativa")
+                .orElse(null); // Retorna null se não encontrar uma reserva ativa
     }
 }

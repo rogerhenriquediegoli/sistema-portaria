@@ -64,4 +64,29 @@ public class CarroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Erro ao cadastrar carro."));
         }
     }
+
+    /**
+     * Endpoint para alterar o status do carro para "Disponível".
+     * Permite também atualizar a quilometragem e o nível de combustível.
+     *
+     * @param carroId ID do carro
+     * @param novoNivelCombustivel Novo nível de combustível (opcional)
+     * @param novaQuilometragem Nova quilometragem (opcional)
+     * @return ResponseEntity com status da operação
+     */
+    @PutMapping("/{carroId}/disponivel")
+    public ResponseEntity<String> alterarStatusParaDisponivel(
+            @PathVariable Long carroId,
+            @RequestParam(required = false) Double novoNivelCombustivel,
+            @RequestParam(required = false) Integer novaQuilometragem) {
+
+        try {
+            // Chama o serviço para alterar o status do carro
+            carroService.alterarStatusParaDisponivel(carroId, novoNivelCombustivel, novaQuilometragem);
+            return ResponseEntity.ok("Status do carro alterado para 'Disponível' com sucesso.");
+        } catch (IllegalArgumentException e) {
+            // Em caso de erro, retorna um erro 400 (Bad Request) com a mensagem
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

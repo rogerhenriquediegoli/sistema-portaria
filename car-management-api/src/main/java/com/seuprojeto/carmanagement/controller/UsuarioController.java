@@ -29,13 +29,18 @@ public class UsuarioController {
         return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // Endpoint para cadastro de usuário
     @PostMapping("/cadastro")
-    public ResponseEntity<Usuario> createUsuario(@RequestBody @Valid Usuario usuario) {
+    public ResponseEntity<?> createUsuario(@RequestBody @Valid Usuario usuario) {
         try {
             Usuario createdUsuario = usuarioService.cadastrarUsuario(usuario);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUsuario);
+        } catch (IllegalArgumentException e) {
+            // Caso ocorra uma IllegalArgumentException, retornamos a mensagem de erro
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // Mensagem de erro no cadastro
+            // Caso ocorra uma outra exceção inesperada, retornamos uma mensagem genérica
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno. Tente novamente mais tarde.");
         }
     }
 

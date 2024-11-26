@@ -42,6 +42,16 @@ public class MotoristaService {
             throw new IllegalArgumentException("Não é possível editar o motorista enquanto estiver 'Em Viagem'.");
         }
 
+        // Não permite edição do CPF
+        if (motorista.getCpf() != null && !motorista.getCpf().equals(existingMotorista.getCpf())) {
+            throw new IllegalArgumentException("Não é permitido editar o CPF.");
+        }
+
+        // Não permite edição do Nome
+        if (motorista.getNome() != null && !motorista.getNome().equals(existingMotorista.getNome())) {
+            throw new IllegalArgumentException("Não é permitido editar o Nome.");
+        }
+
         // Validando e atualizando apenas a validade da CNH e o status
         if (motorista.getValidadeCnh() != null) {
             if (motorista.getValidadeCnh().isBefore(existingMotorista.getValidadeCnh())) {
@@ -59,6 +69,7 @@ public class MotoristaService {
 
         return motoristaRepository.save(existingMotorista);
     }
+
 
     public void deleteMotorista(Long id) {
         motoristaRepository.deleteById(id);
@@ -122,6 +133,16 @@ public class MotoristaService {
 
     public List<Motorista> getAvailableDrivers() {
         return motoristaRepository.findAvailableDrivers();
+    }
+
+    // Atualiza o motorista de forma simples, sem verificações adicionais
+    public Motorista updateMotoristaSimple(Long idMotorista, Motorista motorista) {
+        if (motoristaRepository.existsById(idMotorista)) {
+            motorista.setIdMotorista(idMotorista); // Garantir que o ID não seja perdido
+            return motoristaRepository.save(motorista);
+        } else {
+            throw new IllegalArgumentException("Motorista não encontrado.");
+        }
     }
 
 }
