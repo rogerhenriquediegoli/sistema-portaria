@@ -2,6 +2,7 @@ package com.seuprojeto.carmanagement.service;
 
 import com.seuprojeto.carmanagement.model.Motorista;
 import com.seuprojeto.carmanagement.repository.MotoristaRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -143,6 +144,21 @@ public class MotoristaService {
         } else {
             throw new IllegalArgumentException("Motorista não encontrado.");
         }
+    }
+
+    // Método para buscar motoristas com CNH vencida
+    public List<Motorista> buscarMotoristasComCnhVencida(LocalDate hoje) {
+        return motoristaRepository.findByValidadeCnhBeforeAndStatusNot(hoje, "Disponível");
+    }
+
+    // Inativa o motorista
+    @Transactional
+    public void inativarMotorista(Long idMotorista) {
+        Motorista motorista = motoristaRepository.findById(idMotorista)
+                .orElseThrow(() -> new IllegalArgumentException("Motorista não encontrado"));
+
+        motorista.setStatus("Inativo");
+        motoristaRepository.save(motorista);
     }
 
 }

@@ -17,8 +17,13 @@ body {
 
 h1 {
   font-size: 2.5em;
-  margin-bottom: 30px;
+  margin-bottom: 6px;
   text-align: center;
+}
+
+.titulo-nome{
+  text-align: center;
+  color: black;
 }
 
 .grid-container {
@@ -83,4 +88,14 @@ h1 {
     font-size: 1em;
     padding: 10px 15px;
   }
+}
+
+/* Estilo para o botão de logoff */
+.btn-logoff {
+  font-size: 0.9rem; /* Diminuir o tamanho da fonte */
+  padding: 5px 10px; /* Reduzir o padding */
+  width: 200px;
+  margin-left: auto; /* Alinhar à direita */
+  margin-top: 10px; /* Adicionar um pouco de espaçamento acima */
+  margin-bottom: 10px; /* Adicionar um pouco de espaçamento abaixo */
 }

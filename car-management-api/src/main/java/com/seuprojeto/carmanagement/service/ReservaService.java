@@ -146,4 +146,9 @@ public class ReservaService {
         return reservaRepository.findByCarroIdAndMotoristaIdAndStatus(carroId, motoristaId, "Ativa")
                 .orElse(null); // Retorna null se não encontrar uma reserva ativa
     }
+
+    // Método para buscar reservas ativas que já passaram da data de fim
+    public List<Reserva> buscarReservasAtivasComDataFimAnterior(LocalDate hoje) {
+        return reservaRepository.findByStatusAndDataFimBefore("Ativa", hoje);
+    }
 }

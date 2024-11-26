@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import CarManagement from './pages/CarManagement';
 import DriverManagement from './pages/DriverManagement';
@@ -12,21 +12,48 @@ import Cadastro from './pages/Cadastro';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // Para os ícones do Bootstrap
 
+// Definir a URL da API
+export const API_URL = 'http://localhost:8080/api'; // Local ou outro servidor de produção
 
 function App() {
+  const isAuthenticated = localStorage.getItem('userId'); // Verifica se o usuário está logado
+  
   return (
     <Router>
       <Routes>
+        {/* Rotas públicas - Login e Cadastro */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Cadastro />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/manage-car" element={<CarManagement />} />
-        <Route path="/manage-drivers" element={<DriverManagement />} />
-        <Route path="/register-trip" element={<TripRegistration />} />
-        <Route path="/reserve-car" element={<CarReservation />} />
-        <Route path="/trip-history" element={<TripHistory />} />
-        <Route path="/register-trip-exit" element={<TripHistoryExit />} />
-
+        
+        {/* Rotas privadas - Protegidas com a verificação de login */}
+        <Route
+          path="/dashboard"
+          element={isAuthenticated ? <Dashboard apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/manage-car"
+          element={isAuthenticated ? <CarManagement apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/manage-drivers"
+          element={isAuthenticated ? <DriverManagement apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/register-trip"
+          element={isAuthenticated ? <TripRegistration apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/reserve-car"
+          element={isAuthenticated ? <CarReservation apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/trip-history"
+          element={isAuthenticated ? <TripHistory apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/register-trip-exit"
+          element={isAuthenticated ? <TripHistoryExit apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
       </Routes>
     </Router>
   );

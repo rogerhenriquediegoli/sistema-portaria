@@ -1,32 +1,103 @@
-// src/pages/Dashboard.js
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { API_URL } from '../App';
+import { ToastContainer, toast} from 'react-toastify';
 
 const Dashboard = () => {
-  const carsData = {
-    disponiveis: 10,
-    emUso: 5,
-    aguardandoRevisao: 3,
-    reservados: 2,
+  const [userName, setUserName] = useState('');
+  const [loading, setLoading] = useState(true); // Para controlar o estado de carregamento
+  const [carsData, setCarsData] = useState({});
+  const [showModal, setShowModal] = useState(false); // Estado para controlar a exibição do modal
+  const [driversData, setDriversData] = useState({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Recuperando o userId do localStorage
+    const userId = localStorage.getItem('userId');
+    
+      // Fazendo a requisição para obter o nome do usuário
+      const fetchUserName = async () => {
+        try {
+          const response = await fetch(`${API_URL}/usuarios/${userId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setUserName(data.nomeUsuario);  // Assume que a API retorna o nome do usuário
+          } else {
+            console.error('Erro ao obter dados do usuário');
+          }
+        } catch (error) {
+          console.error('Erro de rede', error);
+        } finally {
+          setLoading(false); // Fim do carregamento
+        }
+      };
+      
+      fetchUserName();
+    
+  }, [navigate]);
+
+  useEffect(() => {
+    // Função para buscar as estatísticas de carros por status
+    const fetchCarStats = async () => {
+      try {
+        const response = await fetch(`${API_URL}/carros/count-status`);
+        if (response.ok) {
+          const data = await response.json();
+          setCarsData(data); // Supondo que a resposta seja um JSON válido
+        } else {
+          console.error('Erro ao obter dados dos carros');
+        }
+      } catch (error) {
+        console.error('Erro de rede', error);
+      }
+    };
+
+    // Função para buscar as estatísticas de motoristas por status
+    const fetchDriverStats = async () => {
+      try {
+        const response = await fetch(`${API_URL}/motoristas/count-status`);
+        if (response.ok) {
+          const data = await response.json();
+          setDriversData(data); // Supondo que a resposta seja um JSON válido
+        } else {
+          console.error('Erro ao obter dados dos motoristas');
+        }
+      } catch (error) {
+        console.error('Erro de rede', error);
+      }
+    };
+
+    fetchCarStats();
+    fetchDriverStats();
+  }, []); // Executa a primeira vez quando o componente for montado
+
+  const totalCars = carsData["Disponível"] + carsData["Em uso"] + carsData["Aguardando Revisão"] + carsData["Reservado"] + carsData["Inativo"];
+  const totalDrivers = driversData["Disponível"] + driversData["Em Viagem"] + driversData["Inativos"];
+
+// Função de logout
+const handleLogout = () => {
+  // Remove o ID do usuário do localStorage
+  localStorage.removeItem('userId');
+
+  // Exibe a notificação de sucesso de logout com um delay
+  setShowModal(false)
+  toast.success('Logout realizado com sucesso!');
+
+  // Limpar o histórico do navegador para evitar voltar para a página anterior
+  window.history.pushState(null, '', window.location.href);  // Limpa o estado atual do histórico
+  window.onpopstate = function () {
+    window.history.go(1);  // Impede o botão de voltar
   };
+  
+  // Redireciona para a página de login após um delay de 2 segundos
+  setTimeout(() => {
+    navigate('/', { replace: true }); // Usando `replace` para evitar que a página de dashboard fique no histórico
+  }, 2000); // Delay de 2 segundos antes de redirecionar
+};
 
-  const driversData = {
-    disponiveis: 12,
-    emViagem: 4,
-    inativos: 2,
-  };
-
-  const totalCars =
-    carsData.disponiveis +
-    carsData.emUso +
-    carsData.aguardandoRevisao +
-    carsData.reservados;
-
-  const totalDrivers =
-    driversData.disponiveis + driversData.emViagem + driversData.inativos;
 
   return (
     <div className="dashboard">
@@ -35,6 +106,19 @@ const Dashboard = () => {
         <br />
         <br />
         <h1 className="text-center mb-5">Dashboard</h1>
+        {/* Exibe a mensagem de boas-vindas com o nome do usuário */}
+        {loading ? (
+          <h2 className="text-center mb-5 titulo-nome">Carregando...</h2>
+        ) : (
+          <div className="d-flex justify-content-between align-items-center">
+          <h2 className="titulo-nome">Bem-vindo, {userName}!</h2>
+            {/* Botão de Log Off */}
+            <button className="btn btn-danger btn-logoff"  onClick={() => setShowModal(true)}>
+              Log Off
+            </button>
+          </div>
+        )}
+
         <div className="row g-4">
           {/* Seção de Carros */}
           <div className="col-md-6">
@@ -54,10 +138,10 @@ const Dashboard = () => {
                     <div
                       className="progress-bar bg-success"
                       style={{
-                        width: `${(carsData.disponiveis / totalCars) * 100}%`,
+                        width: `${(carsData["Disponível"] / totalCars) * 100}%`, // Corrigido para acessar a chave correta
                       }}
                     >
-                      {carsData.disponiveis}
+                      {carsData["Disponível"]}
                     </div>
                   </div>
                 </div>
@@ -67,10 +151,10 @@ const Dashboard = () => {
                     <div
                       className="progress-bar bg-warning"
                       style={{
-                        width: `${(carsData.emUso / totalCars) * 100}%`,
+                        width: `${(carsData["Em uso"] / totalCars) * 100}%`, // Corrigido para acessar a chave correta
                       }}
                     >
-                      {carsData.emUso}
+                      {carsData["Em uso"]}
                     </div>
                   </div>
                 </div>
@@ -78,14 +162,12 @@ const Dashboard = () => {
                   <span>Aguardando Revisão:</span>
                   <div className="progress">
                     <div
-                      className="progress-bar bg-danger"
+                      className="progress-bar bg-warning"
                       style={{
-                        width: `${
-                          (carsData.aguardandoRevisao / totalCars) * 100
-                        }%`,
+                        width: `${(carsData["Aguardando Revisão"] / totalCars) * 100}%`, // Corrigido para acessar a chave correta
                       }}
                     >
-                      {carsData.aguardandoRevisao}
+                      {carsData["Aguardando Revisão"]}
                     </div>
                   </div>
                 </div>
@@ -95,10 +177,23 @@ const Dashboard = () => {
                     <div
                       className="progress-bar bg-info"
                       style={{
-                        width: `${(carsData.reservados / totalCars) * 100}%`,
+                        width: `${(carsData["Reservado"] / totalCars) * 100}%`, // Corrigido para acessar a chave correta
                       }}
                     >
-                      {carsData.reservados}
+                      {carsData["Reservado"]}
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <span>Inativos:</span>
+                  <div className="progress">
+                    <div
+                      className="progress-bar bg-danger"
+                      style={{
+                        width: `${(carsData["Inativo"] / totalCars) * 100}%`, // Corrigido para acessar a chave correta
+                      }}
+                    >
+                      {carsData["Inativo"]}
                     </div>
                   </div>
                 </div>
@@ -124,12 +219,10 @@ const Dashboard = () => {
                     <div
                       className="progress-bar bg-success"
                       style={{
-                        width: `${
-                          (driversData.disponiveis / totalDrivers) * 100
-                        }%`,
+                        width: `${(driversData["Disponível"] / totalDrivers) * 100}%`, // Corrigido para acessar a chave correta
                       }}
                     >
-                      {driversData.disponiveis}
+                      {driversData["Disponível"]}
                     </div>
                   </div>
                 </div>
@@ -139,12 +232,10 @@ const Dashboard = () => {
                     <div
                       className="progress-bar bg-warning"
                       style={{
-                        width: `${
-                          (driversData.emViagem / totalDrivers) * 100
-                        }%`,
+                        width: `${(driversData["Em Viagem"] / totalDrivers) * 100}%`, // Corrigido para acessar a chave correta
                       }}
                     >
-                      {driversData.emViagem}
+                      {driversData["Em Viagem"]}
                     </div>
                   </div>
                 </div>
@@ -154,10 +245,10 @@ const Dashboard = () => {
                     <div
                       className="progress-bar bg-danger"
                       style={{
-                        width: `${(driversData.inativos / totalDrivers) * 100}%`,
+                        width: `${(driversData["Inativos"] / totalDrivers) * 100}%`, // Corrigido para acessar a chave correta
                       }}
                     >
-                      {driversData.inativos}
+                      {driversData["Inativos"]}
                     </div>
                   </div>
                 </div>
@@ -207,6 +298,33 @@ const Dashboard = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Modal de Confirmação para Logoff */}
+{showModal && (
+  <div className="modal show" tabIndex="-1" style={{ display: 'block' }} aria-hidden="true">
+    <div className="modal-dialog">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title" style={{ color: 'black' }}>Confirmar Logoff</h5>
+          <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+        </div>
+        <div className="modal-body">
+          <p style={{ color: 'black' }}>Tem certeza que deseja deslogar?</p>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+            Cancelar
+          </button>
+          <button type="button" className="btn btn-danger" onClick={handleLogout}>
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+  {/* Contêiner de notificações */}
+  <ToastContainer position="top-right" autoClose={5000} hideProgressBar newestOnTop />
     </div>
   );
 };

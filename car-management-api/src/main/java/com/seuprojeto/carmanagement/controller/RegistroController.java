@@ -59,7 +59,6 @@ public class RegistroController {
         }
     }
 
-
     @PostMapping("registroSaida")
     public ResponseEntity<?> createRegistro(@RequestParam Long carroId, @RequestParam Long motoristaId) {
         try {
