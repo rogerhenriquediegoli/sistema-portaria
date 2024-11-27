@@ -35,7 +35,7 @@ public class MotoristaService {
         if (!motoristaRepository.existsById(id)) {
             throw new IllegalArgumentException("Motorista não encontrado.");
         }
-
+    
         Motorista existingMotorista = motoristaRepository.findById(id).get();
 
         // Verifica se o motorista está "Em Viagem"

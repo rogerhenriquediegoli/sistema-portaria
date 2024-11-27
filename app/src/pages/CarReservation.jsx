@@ -1,35 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./CarReservation.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { API_URL } from "../App";
 
 const CarReservation = () => {
-  const [reservations, setReservations] = useState([
-    {
-      idReserva: 1,
-      carro_placa: "ABC1234",
-      motorista_cpf: "12345678900",
-      data_fim: "2024-12-01",
-      status: "Ativa",
-    },
-  ]);
-
-  const [cars, setCars] = useState([
-    { placa: "ABC1234", modelo: "Fusca", status: "Disponível" },
-    { placa: "XYZ5678", modelo: "Civic", status: "Em uso" },
-  ]);
-
-  const [drivers, setDrivers] = useState([
-    { cpf: "12345678900", nome: "João Silva", status: "Disponível" },
-    { cpf: "09876543211", nome: "Maria Santos", status: "Em viagem" },
-  ]);
-
+  const [reservations, setReservations] = useState([]);
+  const [availableCars, setAvailableCars] = useState([]);
+  const [availableDrivers, setAvailableDrivers] = useState([]);
   const [newReservation, setNewReservation] = useState({
     carro_placa: "",
     motorista_cpf: "",
     data_fim: "",
   });
-
   const [filters, setFilters] = useState({
     carro_placa: "",
     motorista_cpf: "",
@@ -37,55 +20,64 @@ const CarReservation = () => {
     data_fim: "",
   });
 
+  useEffect(() => {
+    // Buscar reservas e recursos disponíveis
+    const fetchReservations = async () => {
+      try {
+        const resResponse = await fetch(`${API_URL}/reservas`);
+        const reservationsData = await resResponse.json();
+        setReservations(reservationsData);
+
+        const availResponse = await fetch(`${API_URL}/reservas/disponiveis`);
+        const availData = await availResponse.json();
+        setAvailableCars(availData.carrosDisponiveis || []);
+        setAvailableDrivers(availData.motoristasDisponiveis || []);
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      }
+    };
+
+    fetchReservations();
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "data_fim") {
-      const today = new Date();
-      const selectedDate = new Date(value);
-
-      if (selectedDate <= today) {
-        alert("A data de fim deve ser pelo menos um dia à frente da data atual.");
-        return;
-      }
-    }
-
     setNewReservation({ ...newReservation, [name]: value });
   };
 
   const handleAddReservation = () => {
-    if (
-      !newReservation.carro_placa ||
-      !newReservation.motorista_cpf ||
-      !newReservation.data_fim
-    ) {
+    if (!newReservation.carro_placa || !newReservation.motorista_cpf || !newReservation.data_fim) {
       alert("Todos os campos são obrigatórios.");
       return;
     }
 
-    const today = new Date();
-    const selectedDate = new Date(newReservation.data_fim);
-
-    if (selectedDate <= today) {
-      alert("A data de fim deve ser pelo menos um dia à frente da data atual.");
-      return;
-    }
-
-    const newReservationData = {
-      ...newReservation,
-      idReserva: reservations.length + 1,
-      status: "Ativa",
-    };
-
-    setReservations([...reservations, newReservationData]);
-    setNewReservation({ carro_placa: "", motorista_cpf: "", data_fim: "" });
+    fetch(`${API_URL}/reservas`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        carro_placa: newReservation.carro_placa,
+        motorista_cpf: newReservation.motorista_cpf,
+        data_fim: newReservation.data_fim,
+      }),
+    })
+      .then((res) => res.json())
+      .then((createdReservation) => {
+        setReservations([...reservations, createdReservation]);
+        setNewReservation({ carro_placa: "", motorista_cpf: "", data_fim: "" });
+      })
+      .catch((error) => alert("Erro ao criar reserva: " + error));
   };
 
   const handleCancelReservation = (idReserva) => {
-    const updatedReservations = reservations.map((res) =>
-      res.idReserva === idReserva ? { ...res, status: "Cancelada" } : res
-    );
-    setReservations(updatedReservations);
+    fetch(`${API_URL}/reservas/${idReserva}`, { method: "DELETE" })
+      .then(() => {
+        setReservations((prev) =>
+          prev.map((res) =>
+            res.idReserva === idReserva ? { ...res, status: "Cancelada" } : res
+          )
+        );
+      })
+      .catch((error) => alert("Erro ao cancelar reserva: " + error));
   };
 
   const handleFilterChange = (e) => {
@@ -95,10 +87,10 @@ const CarReservation = () => {
 
   const filteredReservations = reservations.filter((res) => {
     const matchesCar = filters.carro_placa
-      ? res.carro_placa.includes(filters.carro_placa)
+      ? res.carro?.placa.includes(filters.carro_placa)
       : true;
     const matchesDriver = filters.motorista_cpf
-      ? res.motorista_cpf.includes(filters.motorista_cpf)
+      ? res.motorista?.cpf.includes(filters.motorista_cpf)
       : true;
     const matchesStatus = filters.status
       ? res.status === filters.status
@@ -132,13 +124,11 @@ const CarReservation = () => {
                   onChange={handleInputChange}
                 >
                   <option value="">Selecione um carro</option>
-                  {cars
-                    .filter((car) => car.status === "Disponível")
-                    .map((car) => (
-                      <option key={car.placa} value={car.placa}>
-                        {car.modelo} - {car.placa}
-                      </option>
-                    ))}
+                  {availableCars.map((car) => (
+                    <option key={car.placa} value={car.placa}>
+                      {car.modelo} - {car.placa}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="col-md-3">
@@ -151,13 +141,11 @@ const CarReservation = () => {
                   onChange={handleInputChange}
                 >
                   <option value="">Selecione um motorista</option>
-                  {drivers
-                    .filter((driver) => driver.status === "Disponível")
-                    .map((driver) => (
-                      <option key={driver.cpf} value={driver.cpf}>
-                        {driver.nome} - {driver.cpf}
-                      </option>
-                    ))}
+                  {availableDrivers.map((driver) => (
+                    <option key={driver.cpf} value={driver.cpf}>
+                      {driver.nome} - {driver.cpf}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="col-md-3">
@@ -241,8 +229,8 @@ const CarReservation = () => {
                 {filteredReservations.map((res) => (
                   <tr key={res.idReserva}>
                     <td>{res.idReserva}</td>
-                    <td>{res.carro_placa}</td>
-                    <td>{res.motorista_cpf}</td>
+                    <td>{res.carro?.placa}</td>
+                    <td>{res.motorista?.cpf}</td>
                     <td>{res.data_fim}</td>
                     <td>
                       <span
@@ -279,4 +267,4 @@ const CarReservation = () => {
   );
 };
 
-export default CarReservation;
+export default CarReservation

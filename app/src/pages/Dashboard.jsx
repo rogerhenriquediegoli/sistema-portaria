@@ -295,7 +295,7 @@ const handleLogout = () => {
                 >
                   Relatório de Viagens
                 </Link>
-                <Link to="/manage-cars" className="btn btn-outline-primary m-2">
+                <Link to="/cars-review" className="btn btn-outline-primary m-2">
                   Carros em Revisão
                 </Link>
               </div>

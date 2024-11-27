@@ -30,14 +30,14 @@ public class CarroController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Carro> updateCarro(@PathVariable Long id, @RequestBody Carro carro) {
+    public ResponseEntity<?> updateCarro(@PathVariable Long id, @RequestBody Carro carro) {
         carro.setIdCarro(id);  // Atribuindo o ID da URL ao corpo da requisição
         try {
             Carro updatedCarro = carroService.updateCarro(id, carro);
             return ResponseEntity.ok(updatedCarro);
         } catch (IllegalArgumentException e) {
             // Retorna a mensagem de erro com um status 400 e o erro no corpo
-            return ResponseEntity.badRequest().body(new Carro());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     @DeleteMapping("/{id}")
@@ -51,6 +51,13 @@ public class CarroController {
     public ResponseEntity<String> getCarrosCountByStatus() {
         String countByStatus = carroService.getCarrosCountByStatus();
         return ResponseEntity.ok(countByStatus);
+    }
+
+    // Endpoint para buscar carros para Revisão
+    @GetMapping("/aguardando")
+    public List<Carro> getCarrosParaRevisao() {
+        List<Carro> carsReview = carroService.getCarsWaitingForReview();
+        return ResponseEntity.ok(carsReview).getBody();
     }
 
     @PostMapping

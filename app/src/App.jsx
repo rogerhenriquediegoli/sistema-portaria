@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // Para os ícones do Bootstrap
+import CarReview from './pages/CarReview';
 
 // Definir a URL da API
 export const API_URL = 'http://localhost:8080/api'; // Local ou outro servidor de produção
@@ -53,6 +54,10 @@ function App() {
         <Route
           path="/register-trip-exit"
           element={isAuthenticated ? <TripHistoryExit apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/cars-review"
+          element={isAuthenticated ? <CarReview apiUrl={API_URL} /> : <Navigate to="/" />}
         />
       </Routes>
     </Router>

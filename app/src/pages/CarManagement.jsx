@@ -141,8 +141,8 @@ const CarManagement = () => {
         setEditingCar(null); // Resetando a edição
         toast.success("Carro atualizado com sucesso!");
       } else {
-        const errorData = await response.json();
-        toast.error(errorData.error || "Erro ao atualizar carro.");
+        const errorData = await response.text();
+        toast.error(errorData);
       }
     } catch (error) {
       console.error("Erro ao salvar as alterações", error);
@@ -305,22 +305,22 @@ const CarManagement = () => {
 
               <div className="col-md-12 text-end">
                 {editingCar ? (
-                  <>
-                    <button
-                      type="button"
-                      className="btn btn-warning me-2"
-                      onClick={handleSaveCar}
-                    >
-                      <i className="bi bi-save"></i> Salvar Alterações
-                    </button>
+                  <div className="d-flex justify-content-end gap-2">
                     <button
                       type="button"
                       className="btn btn-secondary"
                       onClick={handleCancelEdit}
                     >
-                      <i className="bi bi-x-circle"></i> Cancelar Edição
+                      <i className="bi bi-x-circle"></i> Cancelar
                     </button>
-                  </>
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      onClick={handleSaveCar}
+                    >
+                      <i className="bi bi-check-circle"></i> Salvar Alterações
+                    </button>
+                  </div>
                 ) : (
                   <button
                     type="button"
@@ -331,6 +331,7 @@ const CarManagement = () => {
                   </button>
                 )}
               </div>
+
             </form>
 
             {/* Filtro de busca */}
@@ -387,7 +388,7 @@ const CarManagement = () => {
                       <button
                         className="btn btn-sm btn-warning me-2"
                         onClick={() => handleEditCar(car)}
-                        disabled={car.status !== "Aguardando Revisão" && car.status !== "Inativo"} // Desabilita se o status não for permitido
+                        disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} // Desabilita se o status não for permitido
                       >
                         <i className="bi bi-pencil"></i> Editar
                       </button>

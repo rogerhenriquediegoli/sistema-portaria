@@ -165,6 +165,10 @@ public class CarroService {
         return carroRepository.findReservedCars();
     }
 
+    public List<Carro> getCarsWaitingForReview() {
+        return carroRepository.findCarsWaitingForReview();
+    }
+
     @Transactional
     public void alterarStatusParaDisponivel(Long carroId, Double novoNivelCombustivel, Integer novaQuilometragem) {
         // Recupera o carro pelo ID
