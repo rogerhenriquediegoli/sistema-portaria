@@ -18,6 +18,12 @@ const Dashboard = () => {
     // Recuperando o userId do localStorage
     const userId = localStorage.getItem('userId');
     
+    // Permitir a navegação (habilitar o botão de voltar) ao acessar o Dashboard
+    window.onpopstate = function () {
+      // Permite que o botão de voltar funcione normalmente
+      window.history.go(0);
+    };
+
       // Fazendo a requisição para obter o nome do usuário
       const fetchUserName = async () => {
         try {

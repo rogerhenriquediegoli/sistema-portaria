@@ -1,36 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./DriverManagement.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { API_URL } from "../App"; // Defina a URL da sua API
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const DriverManagement = () => {
-  const [drivers, setDrivers] = useState([
-    {
-      cpf: "12345678900",
-      nome: "João Silva",
-      status: "Disponível",
-      validade_cnh: "2025-12-31",
-      telefone: "123456789",
-    },
-    {
-      cpf: "09876543211",
-      nome: "Maria Santos",
-      status: "Em viagem",
-      validade_cnh: "2024-05-20",
-      telefone: "987654321",
-    },
-  ]);
-
+  const [drivers, setDrivers] = useState([]);
   const [newDriver, setNewDriver] = useState({
     cpf: "",
     nome: "",
     status: "Disponível",
     validade_cnh: "",
-    telefone: "",
   });
 
   const [editingDriver, setEditingDriver] = useState(null);
   const [search, setSearch] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [actionType, setActionType] = useState(null); // 'add', 'edit', 'delete'
+  const [driverToDelete, setDriverToDelete] = useState(null);
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const response = await fetch(`${API_URL}/motoristas`);
+        if (response.ok) {
+          const data = await response.json();
+          setDrivers(data);
+        } else {
+          console.error("Erro ao carregar motoristas.");
+        }
+      } catch (error) {
+        console.error("Erro de rede", error);
+      }
+    };
+    fetchDrivers();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,7 +44,7 @@ const DriverManagement = () => {
     if (name === "validade_cnh") {
       const today = new Date().toISOString().split("T")[0];
       if (value <= today) {
-        alert("A validade da CNH deve ser uma data futura.");
+        toast.error("A validade da CNH deve ser uma data futura.");
         return;
       }
     }
@@ -47,71 +53,152 @@ const DriverManagement = () => {
   };
 
   const handleAddDriver = () => {
-    if (!newDriver.cpf || !newDriver.nome || !newDriver.validade_cnh) {
-      alert("CPF, Nome e Validade da CNH são obrigatórios.");
-      return;
-    }
-
-    const newDriverData = { ...newDriver };
-    setDrivers([...drivers, newDriverData]);
-
-    setNewDriver({
-      cpf: "",
-      nome: "",
-      status: "Disponível",
-      validade_cnh: "",
-      telefone: "",
-    });
+    setActionType('add');
+    setShowConfirmModal(true);
   };
 
   const handleEditDriver = (driver) => {
     if (driver.status === "Em viagem") {
-      alert("Não é possível editar motoristas com status 'Em viagem'.");
+      toast.error("Não é possível editar motoristas com status 'Em viagem'.");
       return;
     }
 
+    setActionType('edit');
     setEditingDriver(driver);
     setNewDriver(driver);
+    setShowConfirmModal(true);
   };
 
-  const handleSaveDriver = () => {
-    if (!newDriver.nome || !newDriver.validade_cnh) {
-      alert("Nome e Validade da CNH são obrigatórios.");
+  const handleDeleteDriver = (cpf) => {
+    const driver = drivers.find((d) => d.cpf === cpf);
+    if (driver.status === "Em viagem") {
+      toast.error("Não é possível excluir motoristas com status 'Em viagem'.");
+      return;
+    }
+
+    setActionType('delete');
+    setDriverToDelete(driver);
+    setShowConfirmModal(true);
+  };
+
+  const handleSaveDriver = async () => {
+    if (!newDriver.validade_cnh) {
+      toast.error("Validade da CNH é obrigatória.");
       return;
     }
 
     const today = new Date().toISOString().split("T")[0];
     if (newDriver.validade_cnh <= today) {
-      alert("A validade da CNH deve ser uma data futura.");
+      toast.error("A validade da CNH deve ser uma data futura.");
       return;
     }
 
-    const updatedDrivers = drivers.map((driver) =>
-      driver.cpf === editingDriver.cpf ? newDriver : driver
-    );
+    try {
+      const response = await fetch(`${API_URL}/motoristas/${editingDriver.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: newDriver.status,
+          validadeCnh: newDriver.validade_cnh,
+        }),
+      });
 
-    setDrivers(updatedDrivers);
-    setEditingDriver(null);
+      if (response.ok) {
+        const updatedDriver = await response.json();
+        setDrivers(
+          drivers.map((driver) =>
+            driver.cpf === updatedDriver.cpf ? updatedDriver : driver
+          )
+        );
+        setEditingDriver(null);
+        setNewDriver({
+          cpf: "",
+          nome: "",
+          status: "Disponível",
+          validade_cnh: "",
+        });
+        toast.success("Motorista atualizado com sucesso!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Erro ao atualizar motorista.");
+      }
+    } catch (error) {
+      console.error("Erro ao salvar motorista", error);
+      toast.error("Erro ao salvar motorista.");
+    }
 
-    setNewDriver({
-      cpf: "",
-      nome: "",
-      status: "Disponível",
-      validade_cnh: "",
-      telefone: "",
-    });
+    setShowConfirmModal(false);
   };
 
-  const handleDeleteDriver = (cpf) => {
-    const driverToDelete = drivers.find((driver) => driver.cpf === cpf);
-
-    if (driverToDelete.status === "Em viagem") {
-      alert("Não é possível excluir motoristas com status 'Em viagem'.");
+  const handleAddDriverConfirmed = async () => {
+    if (!newDriver.validade_cnh) {
+      toast.error("Validade da CNH é obrigatória.");
       return;
     }
 
-    const updatedDrivers = drivers.filter((driver) => driver.cpf !== cpf);
-    setDrivers(updatedDrivers);
+    const today = new Date().toISOString().split("T")[0];
+    if (newDriver.validade_cnh <= today) {
+      toast.error("A validade da CNH deve ser uma data futura.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/motoristas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cpf: newDriver.cpf,
+          nome: newDriver.nome,
+          status: newDriver.status,
+          validadeCnh: newDriver.validade_cnh,
+        }),
+      });
+
+      if (response.ok) {
+        const addedDriver = await response.json();
+        setDrivers([...drivers, addedDriver]);
+        setNewDriver({
+          cpf: "",
+          nome: "",
+          status: "Disponível",
+          validade_cnh: "",
+        });
+        toast.success("Motorista adicionado com sucesso!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Erro ao adicionar motorista.");
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar motorista", error);
+      toast.error("Erro ao adicionar motorista.");
+    }
+
+    setShowConfirmModal(false);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    try {
+      const response = await fetch(`${API_URL}/motoristas/${driverToDelete.cpf}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setDrivers(drivers.filter((driver) => driver.cpf !== driverToDelete.cpf));
+        toast.success("Motorista excluído com sucesso!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Erro ao excluir motorista.");
+      }
+    } catch (error) {
+      console.error("Erro ao excluir motorista", error);
+      toast.error("Erro ao excluir motorista.");
+    }
+
+    setShowConfirmModal(false);
+  };
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    return d.toLocaleDateString("pt-BR"); // Exibe no formato DD/MM/YYYY
   };
 
   const filteredDrivers = drivers.filter((driver) =>
@@ -167,18 +254,6 @@ const DriverManagement = () => {
                 />
               </div>
               <div className="col-md-3">
-                <label htmlFor="telefone" className="form-label">Telefone</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="telefone"
-                  name="telefone"
-                  value={newDriver.telefone}
-                  onChange={handleInputChange}
-                  placeholder="Ex.: 123456789"
-                />
-              </div>
-              <div className="col-md-3">
                 <label htmlFor="status" className="form-label">Status</label>
                 <select
                   className="form-select"
@@ -196,7 +271,8 @@ const DriverManagement = () => {
                   <button
                     type="button"
                     className="btn btn-warning"
-                    onClick={handleSaveDriver}
+                    onClick={handleEditDriver}
+                    disabled={newDriver.status === "Em viagem"}
                   >
                     <i className="bi bi-save"></i> Salvar Alterações
                   </button>
@@ -231,7 +307,6 @@ const DriverManagement = () => {
                   <th>Nome</th>
                   <th>Status</th>
                   <th>Validade CNH</th>
-                  <th>Telefone</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -241,8 +316,7 @@ const DriverManagement = () => {
                     <td>{driver.cpf}</td>
                     <td>{driver.nome}</td>
                     <td>{driver.status}</td>
-                    <td>{driver.validade_cnh}</td>
-                    <td>{driver.telefone}</td>
+                    <td>{formatDate(driver.validade_cnh)}</td> {/* Formatação da data */}
                     <td>
                       <button
                         className="btn btn-sm btn-warning me-2"
@@ -254,6 +328,7 @@ const DriverManagement = () => {
                       <button
                         className="btn btn-sm btn-danger"
                         onClick={() => handleDeleteDriver(driver.cpf)}
+                        disabled={driver.status === "Em viagem"}
                       >
                         <i className="bi bi-trash"></i> Excluir
                       </button>
@@ -265,7 +340,32 @@ const DriverManagement = () => {
           </div>
         </div>
       </main>
+
+      {/* Modal de Confirmação */}
+      {showConfirmModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h5>{actionType === 'delete' ? "Excluir Motorista" : actionType === 'edit' ? "Salvar Alterações" : "Adicionar Motorista"}</h5>
+            <p>
+              {actionType === 'delete' ? "Você tem certeza que deseja excluir este motorista?" : "Deseja continuar com a operação?"}
+            </p>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowConfirmModal(false)}>Cancelar</button>
+              <button
+                className="btn btn-danger"
+                onClick={
+                  actionType === 'delete' ? handleDeleteConfirmed : actionType === 'edit' ? handleSaveDriver : handleAddDriverConfirmed
+                }
+              >
+                {actionType === 'delete' ? "Excluir" : actionType === 'edit' ? "Salvar" : "Adicionar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
+      <ToastContainer />
     </div>
   );
 };

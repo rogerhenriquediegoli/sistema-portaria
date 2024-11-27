@@ -11,11 +11,13 @@ import { API_URL } from '../App';
 const Login = () => {
   const [identificador, setIdentificador] = useState('');
   const [senha, setSenha] = useState('');
+  const [loading, setLoading] = useState(false); // Estado para indicar o carregamento do login
   const navigate = useNavigate(); // Usando o useNavigate para navegação programática
 
   // Função para enviar os dados para a API (usando parâmetros na URL)
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true); // Inicia o carregamento
 
     try {
       // Formatar os parâmetros de consulta para a URL
@@ -36,18 +38,20 @@ const Login = () => {
         const userId = await response.json(); // ID do usuário retornado pela API
         localStorage.setItem('userId', userId); // Armazena o ID do usuário no localStorage
 
-        // Adiciona um delay para mostrar a notificação de sucesso
-          toast.success('Login realizado com sucesso!');
-        // Redireciona para o Dashboard após o delay da notificação
+        toast.success('Login realizado com sucesso!');
+
+        // Delay de 2 segundos antes de redirecionar para o dashboard
         setTimeout(() => {
           navigate('/dashboard');
-        }, 2000); // Delay de 1 segundo antes de redirecionar para o dashboard
+        }, 2000); // Delay de 2 segundos antes de redirecionar para o dashboard
       } else {
         const error = await response.text();
         toast.error(`Erro: ${error}`); // Exibe uma notificação de erro
       }
     } catch (error) {
       toast.error('Erro ao tentar realizar login. Tente novamente.');
+    } finally {
+      setLoading(false); // Finaliza o carregamento
     }
   };
 
@@ -74,11 +78,13 @@ const Login = () => {
             <input
               type="text"
               id="username"
+              name="identificador"  // Atributo name para preenchimento automático
               className="form-control"
               placeholder="Digite seu usuário"
               value={identificador}
               onChange={(e) => setIdentificador(e.target.value)}
               required
+              autoComplete="username"  // Definindo o autocomplete como "username"
             />
           </div>
           <div className="form-group">
@@ -86,14 +92,18 @@ const Login = () => {
             <input
               type="password"
               id="password"
+              name="senha"  // Atributo name para preenchimento automático
               className="form-control"
               placeholder="Digite sua senha"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               required
+              autoComplete="current-password"  // Definindo o autocomplete como "current-password"
             />
           </div>
-          <button type="submit" className="btn btn-primary btn-block">Entrar</button>
+          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+            {loading ? 'Carregando...' : 'Entrar'}
+          </button>
         </form>
         <Link to="/register" className="registro">Cadastre-se</Link>
       </div>
