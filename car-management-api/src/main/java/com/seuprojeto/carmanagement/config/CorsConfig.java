@@ -10,10 +10,12 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // Permitir todas as origens (caso esteja em desenvolvimento, substitua com a URL do frontend posteriormente)
+        // Permitir todas as origens durante o desenvolvimento (substitua com a URL do frontend quando em produção)
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // URL do seu frontend
+                .allowedOrigins("http://localhost:5173") // URL do frontend
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
-                .allowedHeaders("*");
+                .allowedHeaders("*")
+                .allowCredentials(true) // Adicionando suporte a cookies ou autenticação (se necessário)
+                .maxAge(3600); // Tempo máximo de cache das permissões CORS
     }
 }

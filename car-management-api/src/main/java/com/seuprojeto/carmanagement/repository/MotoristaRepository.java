@@ -20,8 +20,15 @@ public interface MotoristaRepository extends JpaRepository<Motorista, Long> {
     """)
     String countMotoristasByStatus();
 
-    @Query("SELECT m FROM Motorista m WHERE m.status = 'Disponível'")
+    @Query(value = "SELECT m.* FROM motorista m WHERE m.status = 'Disponível' AND m.idmotorista NOT IN (SELECT r.motorista_id FROM reserva r WHERE r.status = 'Ativa')", nativeQuery = true)
     List<Motorista> findAvailableDrivers();
+
+    @Query(value = "SELECT m.* FROM motorista m WHERE m.status = 'Disponível'", nativeQuery = true)
+    List<Motorista> findAvailableDriversOnly();
+
+    @Query(value = "SELECT m.* FROM motorista m WHERE m.status = 'Em Viagem'", nativeQuery = true)
+    List<Motorista> findDriversInActivity();
+
 
     // Método para buscar motoristas com CNH vencida (a CNH é anterior à data fornecida)
     List<Motorista> findByValidadeCnhBeforeAndStatusNot(LocalDate validadeCnh, String status);

@@ -165,6 +165,10 @@ public class CarroService {
         return carroRepository.findReservedCars();
     }
 
+    public List<Carro> getCarsBeingUsed() {
+        return carroRepository.findCarsBeingUsed();
+    }
+
     public List<Carro> getCarsWaitingForReview() {
         return carroRepository.findCarsWaitingForReview();
     }

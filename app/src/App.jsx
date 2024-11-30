@@ -6,7 +6,8 @@ import DriverManagement from './pages/DriverManagement';
 import TripRegistration from './pages/TripRegistration';
 import CarReservation from './pages/CarReservation';
 import TripHistory from './pages/TripHistory';
-import TripHistoryExit from './pages/TripRegistrationExit';
+import TripRegistrationExit from './pages/TripRegistrationExit';
+import TripRegistrationEntry from './pages/TripRegistrationEntry';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -53,7 +54,12 @@ function App() {
         />
         <Route
           path="/register-trip-exit"
-          element={isAuthenticated ? <TripHistoryExit apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <TripRegistrationExit apiUrl={API_URL} /> : <Navigate to="/" />}
+        />
+
+        <Route
+          path="/register-trip-entry"
+          element={isAuthenticated ? <TripRegistrationEntry apiUrl={API_URL} /> : <Navigate to="/" />}
         />
         <Route
           path="/cars-review"

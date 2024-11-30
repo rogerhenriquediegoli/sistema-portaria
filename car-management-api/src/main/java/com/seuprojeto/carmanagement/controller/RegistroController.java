@@ -53,9 +53,7 @@ public class RegistroController {
             return ResponseEntity.ok(registroAtualizado);
         } catch (IllegalArgumentException e) {
             // Captura exceções e retorna a mensagem de erro no corpo da resposta
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", e.getMessage())  // Exibe a mensagem de erro
-            );
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -65,7 +63,7 @@ public class RegistroController {
             Registro registro = registroService.createRegistro(carroId, motoristaId);
             return ResponseEntity.status(HttpStatus.CREATED).body(registro);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (ChangeSetPersister.NotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -86,7 +84,18 @@ public class RegistroController {
     @GetMapping("/validos")
     public ResponseEntity<Map<String, List<?>>> getReservedCarsAndAvailableDrivers() {
         List<Carro> reservedCars = carroService.getReservedCars();
-        List<Motorista> availableDrivers = motoristaService.getAvailableDrivers();
+        List<Motorista> availableDrivers = motoristaService.getAvailableDriversOnly();
+
+        return ResponseEntity.ok(Map.of(
+                "carrosReservados", reservedCars,
+                "motoristasDisponiveis", availableDrivers
+        ));
+    }
+
+    @GetMapping("/em-atividade")
+    public ResponseEntity<Map<String, List<?>>> getCarsBeingUsedAndDriversInActivity() {
+        List<Carro> reservedCars = carroService.getCarsBeingUsed();
+        List<Motorista> availableDrivers = motoristaService.getDriversInActivity();
 
         return ResponseEntity.ok(Map.of(
                 "carrosReservados", reservedCars,

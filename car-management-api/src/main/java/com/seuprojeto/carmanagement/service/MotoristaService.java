@@ -136,6 +136,14 @@ public class MotoristaService {
         return motoristaRepository.findAvailableDrivers();
     }
 
+    public List<Motorista> getAvailableDriversOnly() {
+        return motoristaRepository.findAvailableDriversOnly();
+    }
+
+    public List<Motorista> getDriversInActivity() {
+        return motoristaRepository.findDriversInActivity();
+    }
+
     // Atualiza o motorista de forma simples, sem verificações adicionais
     public Motorista updateMotoristaSimple(Long idMotorista, Motorista motorista) {
         if (motoristaRepository.existsById(idMotorista)) {

@@ -117,7 +117,7 @@ public class RegistroService {
 
         // Verifica se a quilometragem de entrada é maior que a de saída
         if (quilometragemEntrada <= registro.getQuilometragemSaida()) {
-            throw new IllegalArgumentException("A quilometragem de entrada deve ser maior que a de saída.");
+            throw new IllegalArgumentException("A quilometragem de entrada deve ser maior que a de saída ().");
         }
 
         // Calcula a quilometragem rodada

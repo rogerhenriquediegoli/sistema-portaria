@@ -21,7 +21,7 @@ const TripRegistration = () => {
               <Link to="/register-trip-exit" className="btn btn-success mx-2">
                 Registrar Saída
               </Link>
-              <Link to="/register-trip" className="btn btn-warning mx-2">
+              <Link to="/register-trip-entry" className="btn btn-warning mx-2">
                 Registrar Entrada
               </Link>
             </div>

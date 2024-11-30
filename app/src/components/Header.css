@@ -23,5 +23,6 @@ header {
   header p {
     font-size: 1rem;
     margin-left: 60px;
+    text-align: left;
   }
   
