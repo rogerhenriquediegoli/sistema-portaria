@@ -105,7 +105,7 @@ const CarManagement = () => {
     setNewCar({
       placa: car.placa,
       modelo: car.modelo,
-      status: car.status,
+      status: car.status === "Disponível" ? "Aguardando Revisão" : car.status,
       capacidadeTanque: car.capacidadeTanque,
       consumoMedio: car.consumoMedio,
       quilometragemAtual: car.quilometragemAtual,
@@ -335,19 +335,26 @@ const CarManagement = () => {
             </form>
 
             {/* Filtro de busca */}
-            <div className="row mb-4">
+            <form className="row g-3 mb-4">
+            <div className="card-header bg-primary text-white">
+              <h5><i className="bi bi-funnel"></i> Filtros</h5>
+            </div>
               <div className="col-md-6">
+                <label htmlFor="search" className="form-label">Buscar por placa ou modelo</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Buscar por placa ou modelo"
+                  id="search"
+                  placeholder="Buscar..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
               <div className="col-md-6">
+                <label htmlFor="statusFilter" className="form-label">Status</label>
                 <select
                   className="form-select"
+                  id="statusFilter"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -359,7 +366,7 @@ const CarManagement = () => {
                   <option value="Em uso">Em uso</option>
                 </select>
               </div>
-            </div>
+            </form>
 
             <table className="table table-striped table-hover">
               <thead className="table-dark">
@@ -413,24 +420,40 @@ const CarManagement = () => {
 
       {/* Modal de confirmação */}
       {showModal && (
-        <div className="modal show" tabindex="-1" style={{ display: "block" }} aria-labelledby="exampleModalLabel">
-          <div className="modal-dialog">
+        <div className="modal show" tabIndex="-1" style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <div className="modal-dialog" style={{ marginTop: "10%" }}>
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title" id="exampleModalLabel" style={{ color: 'black' }}>Confirmar {editingCar ? 'Atualização' : 'Cadastro'}</h5>
+                <h5 className="modal-title" style={{ color: "black" }}>
+                  <i className="bi bi-check-circle"></i> Confirmar {editingCar ? "Atualização" : "Cadastro"}
+                </h5>
                 <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
-              <div className="modal-body" style={{ color: 'black' }}>
-                <p><strong>Placa:</strong> {newCar.placa}</p>
-                <p><strong>Modelo:</strong> {newCar.modelo}</p>
-                <p><strong>Status:</strong> {newCar.status}</p>
-                <p><strong>Capacidade do Tanque:</strong> {newCar.capacidadeTanque} L</p>
-                <p><strong>Consumo Médio:</strong> {newCar.consumoMedio} Km/L</p>
-                <p><strong>Quilometragem Atual:</strong> {newCar.quilometragemAtual} Km</p>
+              <div className="modal-body" style={{ color: "black" }}>
+                <div className="mb-3">
+                  <h5><i className="bi bi-car-front"></i> Carro</h5>
+                  <p>
+                    <strong>Placa:</strong> {newCar.placa} <br />
+                    <strong>Modelo:</strong> {newCar.modelo} <br />
+                    <strong>Status:</strong> {newCar.status} <br />
+                    <strong>Capacidade do Tanque:</strong> {newCar.capacidadeTanque} L <br />
+                    <strong>Consumo Médio:</strong> {newCar.consumoMedio} Km/L <br />
+                    <strong>Quilometragem Atual:</strong> {newCar.quilometragemAtual} Km
+                  </p>
+                </div>
+                <div className="alert alert-info" role="alert">
+                  <strong>Importante:</strong> Ao confirmar, você {editingCar ? "atualiza" : "cadastra"} o carro com as informações acima.
+                </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
-                <button type="button" className="btn btn-primary" onClick={editingCar ? confirmSaveCar : confirmAddCar}>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={editingCar ? confirmSaveCar : confirmAddCar}
+                >
                   Confirmar
                 </button>
               </div>
@@ -439,21 +462,39 @@ const CarManagement = () => {
         </div>
       )}
 
-      {/* Modal de Exclusão */}
+      {/* Modal Confirmar Exclusão */}
       {showDeleteModal && (
-        <div className="modal show" tabindex="-1" style={{ display: "block" }} aria-labelledby="exampleModalLabel">
-          <div className="modal-dialog">
+        <div className="modal show" tabIndex="-1" style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <div className="modal-dialog" style={{ marginTop: "10%" }}>
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title" id="exampleModalLabel" style={{ color: 'black' }}>Confirmar Exclusão</h5>
+                <h5 className="modal-title" style={{ color: "black" }}>
+                  <i className="bi bi-trash"></i> Confirmar Exclusão
+                </h5>
                 <button type="button" className="btn-close" onClick={() => setShowDeleteModal(false)}></button>
               </div>
-              <div className="modal-body" style={{ color: 'black' }}>
-                <p>Esta ação irá excluir o carro e todos os registros relacionados, incluindo reservas e viagens. Deseja continuar?</p>
+              <div className="modal-body" style={{ color: "black" }}>
+                {carToDelete && (
+                  <>
+                    <p><strong>Placa:</strong> {carToDelete.placa}</p>
+                    <p><strong>Modelo:</strong> {carToDelete.modelo}</p>
+                    <p><strong>Status:</strong> {carToDelete.status}</p>
+                    <p><strong>Capacidade do Tanque:</strong> {carToDelete.capacidadeTanque} L</p>
+                    <p><strong>Consumo Médio:</strong> {carToDelete.consumoMedio} Km/L</p>
+                    <p><strong>Quilometragem Atual:</strong> {carToDelete.quilometragemAtual} Km</p>
+                    <div className="alert alert-warning" role="alert">
+                      <strong>Atenção:</strong> Ao confirmar, o carro será removido permanentemente, incluindo todos os registros de viagem e reserva relacionados.
+                    </div>
+                  </>
+                )}
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>Cancelar</button>
-                <button type="button" className="btn btn-danger" onClick={handleDeleteCar}>Excluir</button>
+                <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                  Cancelar
+                </button>
+                <button className="btn btn-danger" onClick={handleDeleteCar}>
+                  Excluir
+                </button>
               </div>
             </div>
           </div>

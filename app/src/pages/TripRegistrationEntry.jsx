@@ -128,10 +128,15 @@ const TripRegistrationEntry = () => {
             </h4>
           </div>
           <div className="card-body">
+          {(!cars.length || !drivers.length) && (
+              <div className="alert alert-warning text-center">
+                <strong>Não há carros ou motoristas disponíveis no momento!</strong>
+              </div>
+            )}
             <form>
               <div className="mb-3">
                 <label htmlFor="car" className="form-label">Carro</label>
-                <select id="car" className="form-select" value={selectedCar} onChange={handleCarChange}>
+                <select id="car" className="form-select" value={selectedCar} onChange={handleCarChange} disabled={cars.length === 0 || drivers.length == 0}>
                   <option value="">Selecione um carro</option>
                   {cars.map((car) => (
                     <option key={car.idCarro} value={car.idCarro}>
@@ -143,7 +148,7 @@ const TripRegistrationEntry = () => {
 
               <div className="mb-3">
                 <label htmlFor="driver" className="form-label">Motorista</label>
-                <select id="driver" className="form-select" value={selectedDriver} onChange={handleDriverChange}>
+                <select id="driver" className="form-select" value={selectedDriver} onChange={handleDriverChange} disabled={cars.length === 0 || drivers.length == 0}>
                   <option value="">Selecione um motorista</option>
                   {drivers.map((driver) => (
                     <option key={driver.idMotorista} value={driver.idMotorista}>
@@ -163,6 +168,7 @@ const TripRegistrationEntry = () => {
                   value={entryData.quilometragemEntrada}
                   onChange={handleInputChange}
                   required
+                  disabled={cars.length === 0 || drivers.length == 0}
                 />
               </div>
 

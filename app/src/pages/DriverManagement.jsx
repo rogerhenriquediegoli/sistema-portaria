@@ -17,15 +17,16 @@ const DriverManagement = () => {
   const [editingDriver, setEditingDriver] = useState(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [validadeCnhFilter, setValidadeCnhFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState(null);
-  const [loading, setLoading] = useState(false); // Adicionado estado de carregamento
+  const [loading, setLoading] = useState(false);
 
   // Carregar os motoristas ao iniciar
   useEffect(() => {
     const fetchDrivers = async () => {
-      setLoading(true); // Inicia o carregamento
+      setLoading(true);
       try {
         const response = await fetch(`${API_URL}/motoristas`);
         if (response.ok) {
@@ -37,7 +38,7 @@ const DriverManagement = () => {
       } catch (error) {
         toast.error("Erro de rede. Tente novamente.");
       } finally {
-        setLoading(false); // Finaliza o carregamento
+        setLoading(false);
       }
     };
     fetchDrivers();
@@ -58,7 +59,7 @@ const DriverManagement = () => {
       toast.error("Preencha todos os campos corretamente.");
       return;
     }
-    setShowModal(true); // Exibir modal de confirmação
+    setShowModal(true);
   };
 
   // Confirmação de cadastro no modal
@@ -69,7 +70,7 @@ const DriverManagement = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newDriver),
       });
-  
+
       if (response.ok) {
         const newDriverData = await response.json();
         setDrivers([...drivers, newDriverData]);
@@ -81,15 +82,14 @@ const DriverManagement = () => {
         });
         toast.success("Motorista cadastrado com sucesso!");
       } else {
-        const errorData = await response.text()
+        const errorData = await response.text();
         toast.error(errorData);
       }
     } catch (error) {
       toast.error("Erro de rede. Não foi possível cadastrar o motorista.");
     }
-    setShowModal(false); // Fechar modal
+    setShowModal(false);
   };
-  
 
   // Edição de um motorista
   const handleEditDriver = (driver) => {
@@ -108,7 +108,7 @@ const DriverManagement = () => {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
-    setShowModal(true); // Exibir modal de confirmação
+    setShowModal(true);
   };
 
   // Confirmação de edição no modal
@@ -122,7 +122,7 @@ const DriverManagement = () => {
           validadeCnh: newDriver.validadeCnh,
         }),
       });
-  
+
       if (response.ok) {
         const updatedDriver = await response.json();
         setDrivers(
@@ -131,17 +131,17 @@ const DriverManagement = () => {
           )
         );
         setEditingDriver(null);
+        handleCancelEdit();
         toast.success("Motorista atualizado com sucesso!");
       } else {
-        const errorData = await response.text()
+        const errorData = await response.text();
         toast.error(errorData);
       }
     } catch (error) {
       toast.error("Erro de rede. Não foi possível atualizar o motorista.");
     }
-    setShowModal(false); // Fechar modal
+    setShowModal(false);
   };
-  
 
   // Exclusão de motorista
   const handleDeleteDriver = async () => {
@@ -150,20 +150,19 @@ const DriverManagement = () => {
       const response = await fetch(`${API_URL}/motoristas/${driverToDelete.idMotorista}`, {
         method: "DELETE",
       });
-  
+
       if (response.ok) {
         setDrivers(drivers.filter((driver) => driver.idMotorista !== driverToDelete.idMotorista));
         toast.success("Motorista excluído com sucesso!");
       } else {
-        const errorData = await response.text()
+        const errorData = await response.text();
         toast.error(errorData);
       }
     } catch (error) {
       toast.error("Erro de rede. Não foi possível excluir o motorista.");
     }
-    setShowDeleteModal(false); // Fechar modal
+    setShowDeleteModal(false);
   };
-  
 
   // Confirmar exclusão
   const confirmDeleteDriver = (driver) => {
@@ -171,25 +170,32 @@ const DriverManagement = () => {
     setShowDeleteModal(true);
   };
 
-  // Cancelar edição
-  const handleCancelEdit = () => {
-    setEditingDriver(null);
+  // Filtragem dos motoristas
+  const filteredDrivers = drivers.filter((driver) => {
+    const matchesSearch =
+      driver.cpf.toString().includes(search) ||
+      driver.nome.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter ? driver.status === statusFilter : true;
+    const matchesValidadeCnh = validadeCnhFilter ? driver.validadeCnh === validadeCnhFilter : true;
+    return matchesSearch && matchesStatus && matchesValidadeCnh;
+  });
+
+  // Função para limpar os campos do formulário
+  const clearFormFields = () => {
     setNewDriver({
       cpf: "",
       nome: "",
       status: "Inativo",
       validadeCnh: "",
     });
+    setEditingDriver(null);
   };
 
-  // Filtrar motoristas
-  const filteredDrivers = drivers.filter((driver) => {
-    const matchesSearch =
-      driver.nome.toLowerCase().includes(search.toLowerCase()) ||
-      driver.cpf.toString().includes(search);
-    const matchesStatus = statusFilter ? driver.status === statusFilter : true;
-    return matchesSearch && matchesStatus;
-  });
+  // Cancelar edição
+  const handleCancelEdit = () => {
+    clearFormFields();
+    setShowModal(false);
+  };
 
   return (
     <div className="driver-management">
@@ -198,11 +204,11 @@ const DriverManagement = () => {
         <div className="card shadow">
           <div className="card-header bg-success text-white">
             <h4>
-              <i className="bi bi-person-circle"></i> Gerenciamento de Motoristas
+              <i className="bi bi-person-fill"></i> Gerenciamento de Motoristas
             </h4>
           </div>
           <div className="card-body">
-            {/* Formulário */}
+            {/* Formulário de cadastro/edição */}
             <form className="row g-3 mb-4">
               <div className="col-md-3">
                 <label htmlFor="cpf" className="form-label">CPF</label>
@@ -214,7 +220,6 @@ const DriverManagement = () => {
                   value={newDriver.cpf}
                   onChange={handleInputChange}
                   placeholder="Ex.: 12345678901"
-                  disabled={!!editingDriver}
                 />
               </div>
               <div className="col-md-3">
@@ -227,7 +232,6 @@ const DriverManagement = () => {
                   value={newDriver.nome}
                   onChange={handleInputChange}
                   placeholder="Ex.: João Silva"
-                  disabled={!!editingDriver}
                 />
               </div>
               <div className="col-md-3">
@@ -255,141 +259,197 @@ const DriverManagement = () => {
                 />
               </div>
               <div className="col-md-12 text-end">
-              {editingDriver ? (
-              <div className="d-flex justify-content-end gap-2">
-                <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>
-                  <i className="bi bi-x-circle"></i> Cancelar
-                </button>
-                <button type="button" className="btn btn-success" onClick={handleSaveDriver}>
-                  <i className="bi bi-check-circle"></i> Salvar Alterações
-                </button>
+                {editingDriver ? (
+                  <div className="d-flex justify-content-end gap-2">
+                    <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>
+                      <i className="bi bi-x-circle"></i> Cancelar
+                    </button>
+                    <button type="button" className="btn btn-success" onClick={handleSaveDriver}>
+                      <i className="bi bi-check-circle"></i> Salvar Alterações
+                    </button>
+                  </div>
+                ) : (
+                  <button type="button" className="btn btn-success" onClick={handleAddDriver}>
+                    <i className="bi bi-plus-circle"></i> Adicionar Motorista
+                  </button>
+                )}
               </div>
-            ) : (
-              <button type="button" className="btn btn-success" onClick={handleAddDriver}>
-                 <i className="bi bi-plus-circle"></i> Adicionar Motorista
-              </button>
-            )}
+            </form>
 
+            {/* Filtro de busca */}
+            <form className="row g-3 mb-4">
+              <div className="card-header bg-success text-white">
+                <h5><i className="bi bi-funnel"></i> Filtros</h5>
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="search" className="form-label">Buscar por CPF ou Nome</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="search"
+                  placeholder="Buscar..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="statusFilter" className="form-label">Status</label>
+                <select
+                  className="form-select"
+                  id="statusFilter"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="">Todos os Status</option>
+                  <option value="Disponível">Disponível</option>
+                  <option value="Inativo">Inativo</option>
+                  <option value="Em Viagem">Em Viagem</option>
+                </select>
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="validadeCnhFilter" className="form-label">Validade CNH</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  id="validadeCnhFilter"
+                  value={validadeCnhFilter}
+                  onChange={(e) => setValidadeCnhFilter(e.target.value)}
+                />
               </div>
             </form>
 
             {/* Tabela */}
             <div className="table-responsive">
-            <table className="table table-striped table-hover">
-            <thead className="table-dark">
-              <tr>
-                <th>CPF</th>
-                <th>Nome</th>
-                <th>Status</th>
-                <th>Validade CNH</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="5" className="text-center">
-                    Carregando...
-                  </td>
-                </tr>
-              ) : filteredDrivers.length > 0 ? (
-                filteredDrivers.map((driver) => (
-                  <tr key={driver.idMotorista}>
-                    <td>{driver.cpf}</td>
-                    <td>{driver.nome}</td>
-                    <td>{driver.status}</td>
-                    <td>{driver.validadeCnh}</td>
-                    <td>
-                      <button
-                        className="btn btn-sm btn-warning me-2"
-                        onClick={() => handleEditDriver(driver)}
-                        disabled={driver.status !== "Disponível" && driver.status !== "Inativo"} // Exemplo: ajuste conforme lógica de status
-                      >
-                        <i className="bi bi-pencil"></i> Editar
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => confirmDeleteDriver(driver)}
-                        disabled={driver.status !== "Disponível" && driver.status !== "Inativo"} // Exemplo: ajuste conforme lógica de exclusão
-                      >
-                        <i className="bi bi-trash"></i> Excluir
-                      </button>
-                    </td>
+              <table className="table table-striped table-hover">
+                <thead className="table-dark">
+                  <tr>
+                    <th>CPF</th>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th>Validade CNH</th>
+                    <th>Ações</th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="text-center">
-                    Nenhum motorista encontrado.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="5" className="text-center">Carregando...</td>
+                    </tr>
+                  ) : filteredDrivers.length > 0 ? (
+                    filteredDrivers.map((driver) => (
+                      <tr key={driver.idMotorista}>
+                        <td>{driver.cpf}</td>
+                        <td>{driver.nome}</td>
+                        <td>{driver.status}</td>
+                        <td>{driver.validadeCnh}</td>
+                        <td>
+                          <button
+                            className="btn btn-sm btn-warning me-2"
+                            onClick={() => handleEditDriver(driver)}
+                            disabled={driver.status !== "Disponível" && driver.status !== "Inativo"}
+                          >
+                            <i className="bi bi-pencil"></i> Editar
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => confirmDeleteDriver(driver)}
+                            disabled={driver.status !== "Disponível" && driver.status !== "Inativo"}
+                          >
+                            <i className="bi bi-trash"></i> Excluir
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="text-center">Nenhum motorista encontrado.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </main>
 
+      {/* Modal de Confirmação de Cadastro ou Atualização */}
+      {showModal && (
+        <div className="modal show" tabIndex="-1" style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <div className="modal-dialog" style={{ marginTop: "10%" }}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" style={{ color: "black" }}>
+                  <i className="bi bi-check-circle"></i> Confirmar {editingDriver ? "Atualização" : "Cadastro"}
+                </h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+              </div>
+              <div className="modal-body" style={{ color: "black" }}>
+                <div className="mb-3">
+                  <h5><i className="bi bi-person-fill"></i> Motorista</h5>
+                  <p>
+                    <strong>CPF:</strong> {newDriver.cpf} <br />
+                    <strong>Nome:</strong> {newDriver.nome} <br />
+                    <strong>Status:</strong> {newDriver.status} <br />
+                    <strong>Validade CNH:</strong> {newDriver.validadeCnh}
+                  </p>
+                </div>
+                <div className="alert alert-info" role="alert">
+                  <strong>Importante:</strong> Ao confirmar, você {editingDriver ? 'atualiza' : 'cadastra'} o motorista com as informações acima.
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={editingDriver ? confirmSaveDriver : confirmAddDriver}
+                >
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-{/* Modal de Confirmação de Cadastro ou Atualização */}
-{showModal && (
-  <div className="modal show" tabIndex="-1" style={{ display: "block" }}>
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title" style={{ color: "black" }}>
-            Confirmar {editingDriver ? "Atualização" : "Cadastro"}
-          </h5>
-          <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+      {/* Modal Confirmar Exclusão */}
+      {showDeleteModal && (
+        <div className="modal show" tabIndex="-1" style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <div className="modal-dialog" style={{ marginTop: "10%" }}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" style={{ color: "black" }}>
+                  <i className="bi bi-trash"></i> Confirmar Exclusão
+                </h5>
+                <button type="button" className="btn-close" onClick={() => setShowDeleteModal(false)}></button>
+              </div>
+              <div className="modal-body" style={{ color: "black" }}>
+                {driverToDelete && (
+                  <>
+                    <p><strong>CPF:</strong> {driverToDelete.cpf}</p>
+                    <p><strong>Nome:</strong> {driverToDelete.nome}</p>
+                    <p><strong>Status:</strong> {driverToDelete.status}</p>
+                    <p><strong>Validade CNH:</strong> {driverToDelete.validadeCnh}</p>
+                    <div className="alert alert-warning" role="alert">
+                      <strong>Atenção:</strong> Ao confirmar, o motorista será removido permanentemente, incluindo todos os registros de viagem e reserva relacionados.
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                  Cancelar
+                </button>
+                <button className="btn btn-danger" onClick={handleDeleteDriver}>
+                  Excluir
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="modal-body" style={{ color: "black" }}>
-          <p><strong>CPF:</strong> {newDriver.cpf}</p>
-          <p><strong>Nome:</strong> {newDriver.nome}</p>
-          <p><strong>Status:</strong> {newDriver.status}</p>
-          <p><strong>Validade CNH:</strong> {newDriver.validadeCnh}</p>
-        </div>
-        <div className="modal-footer">
-          <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
-            Cancelar
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={editingDriver ? confirmSaveDriver : confirmAddDriver}
-          >
-            Confirmar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-{/* Modal Confirmar Exclusão */}
-{showDeleteModal && (
-  <div className="modal show" tabIndex="-1" style={{ display: "block" }}>
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title" style={{ color: "black" }}>Confirmação de Exclusão</h5>
-          <button type="button" className="btn-close" onClick={() => setShowDeleteModal(false)}></button>
-        </div>
-        <div className="modal-body" style={{ color: "black" }}>
-          <p>Tem certeza de que deseja excluir o motorista <strong>{driverToDelete?.nome}</strong>?</p>
-        </div>
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancelar
-          </button>
-          <button className="btn btn-danger" onClick={handleDeleteDriver}>
-            Excluir
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       <Footer />
       <ToastContainer />

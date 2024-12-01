@@ -1,125 +1,167 @@
-import React, { useState } from "react";
-import "./TripHistory.css";
+import React, { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { API_URL } from "../App"; // Defina a URL da sua API
 
 const TripHistory = () => {
-  const [records, setRecords] = useState([
-    {
-      idRegistro: 1,
-      motorista_cpf: "12345678900",
-      carro_placa: "ABC1234",
-      data_saida: "2024-11-20",
-      data_entrada: "2024-11-21",
-      quilometragem_saida: 1000,
-      quilometragem_entrada: 1100,
-      nivel_combustivel_saida: 80,
-      nivel_combustivel_entrada: 50,
-      abastecimentoExtra: 10,
-    },
-  ]);
-
-  const [search, setSearch] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-
-  const filteredRecords = records.filter((record) => {
-    const matchesSearch =
-      record.motorista_cpf.includes(search) || record.carro_placa.includes(search);
-
-    const matchesDate =
-      (!startDate || new Date(record.data_saida) >= new Date(startDate)) &&
-      (!endDate || new Date(record.data_entrada) <= new Date(endDate));
-
-    return matchesSearch && matchesDate;
+  const [records, setRecords] = useState([]);
+  const [filteredRecords, setFilteredRecords] = useState([]);
+  const [filters, setFilters] = useState({
+    motoristaId: "",
+    carroId: "",
+    dataSaida: "",
+    dataEntrada: "",
   });
 
+  const fetchRecords = () => {
+    fetch(`${API_URL}/registros`)
+      .then((response) => {
+        if (!response.ok) throw new Error("Erro ao buscar registros.");
+        return response.json();
+      })
+      .then((data) => {
+        setRecords(data);
+        setFilteredRecords(data);
+      })
+      .catch((error) => toast.error("Erro ao carregar dados: " + error.message));
+  };
+
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+
+    // Aplicar filtros
+    const filtered = records.filter((record) => {
+      const matchesMotoristaId = filters.motoristaId === "" || record.motoristaId.toString().includes(filters.motoristaId);
+      const matchesCarroId = filters.carroId === "" || record.carroId.toString().includes(filters.carroId);
+      const matchesDataSaida = filters.dataSaida === "" || record.dataSaida.includes(filters.dataSaida);
+      const matchesDataEntrada = filters.dataEntrada === "" || record.dataEntrada.includes(filters.dataEntrada);
+
+      return matchesMotoristaId && matchesCarroId && matchesDataSaida && matchesDataEntrada;
+    });
+
+    setFilteredRecords(filtered);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      motoristaId: "",
+      carroId: "",
+      dataSaida: "",
+      dataEntrada: "",
+    });
+    setFilteredRecords(records); // Restaura todos os registros
+  };
+
   return (
-    <div className="travel-report">
+    <div className="trip-history">
       <Header />
       <main className="container my-5">
         <div className="card shadow">
           <div className="card-header bg-primary text-white">
             <h4>
-              <i className="bi bi-clipboard"></i> Relatório de Viagens
+              <i className="bi bi-clipboard"></i> Histórico de Viagens
             </h4>
           </div>
           <div className="card-body">
-            <div className="row mb-4">
-              <div className="col-md-4">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Buscar por CPF ou Placa"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+            {/* Filtros */}
+            <div className="border p-3 mb-4">
+              <div className="row g-3 mb-4">
+                <div className="col-md-3">
+                  <label htmlFor="motoristaId" className="form-label">Motorista (ID)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="motoristaId"
+                    placeholder="Filtrar por ID do Motorista"
+                    name="motoristaId"
+                    value={filters.motoristaId}
+                    onChange={handleFilterChange}
+                  />
+                </div>
+                <div className="col-md-3">
+                  <label htmlFor="carroId" className="form-label">Carro (ID)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="carroId"
+                    placeholder="Filtrar por ID do Carro"
+                    name="carroId"
+                    value={filters.carroId}
+                    onChange={handleFilterChange}
+                  />
+                </div>
+                <div className="col-md-3">
+                  <label htmlFor="dataSaida" className="form-label">Data de Saída</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    id="dataSaida"
+                    name="dataSaida"
+                    value={filters.dataSaida}
+                    onChange={handleFilterChange}
+                  />
+                </div>
+                <div className="col-md-3">
+                  <label htmlFor="dataEntrada" className="form-label">Data de Entrada</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    id="dataEntrada"
+                    name="dataEntrada"
+                    value={filters.dataEntrada}
+                    onChange={handleFilterChange}
+                  />
+                </div>
               </div>
-              <div className="col-md-3">
-                <input
-                  type="date"
-                  className="form-control"
-                  placeholder="Data Inicial"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              </div>
-              <div className="col-md-3">
-                <input
-                  type="date"
-                  className="form-control"
-                  placeholder="Data Final"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-              </div>
-              <div className="col-md-2">
-                <button
-                  className="btn btn-secondary w-100"
-                  onClick={() => {
-                    setSearch("");
-                    setStartDate("");
-                    setEndDate("");
-                  }}
-                >
-                  <i className="bi bi-x-circle"></i> Limpar Filtros
+              {Object.values(filters).some((value) => value) && (
+                <button className="btn btn-secondary mb-3" onClick={clearFilters}>
+                  Limpar Filtros
                 </button>
-              </div>
+              )}
             </div>
 
+            {/* Tabela de Registros */}
             <table className="table table-striped table-hover">
               <thead className="table-dark">
                 <tr>
                   <th>ID</th>
-                  <th>Motorista (CPF)</th>
-                  <th>Carro (Placa)</th>
-                  <th>Data Saída</th>
-                  <th>Data Entrada</th>
+                  <th>Motorista (ID)</th>
+                  <th>Carro (ID)</th>
+                  <th>Data de Saída</th>
+                  <th>Data de Entrada</th>
                   <th>Quilometragem (Saída / Entrada)</th>
-                  <th>Nível Combustível (Saída / Entrada)</th>
-                  <th>Abastecimento Extra (L)</th>
+                  <th>Nível de Combustível (Saída / Entrada)</th>
+                  <th>Abastecimento Extra</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredRecords.map((record) => (
-                  <tr key={record.idRegistro}>
-                    <td>{record.idRegistro}</td>
-                    <td>{record.motorista_cpf}</td>
-                    <td>{record.carro_placa}</td>
-                    <td>{record.data_saida}</td>
-                    <td>{record.data_entrada}</td>
-                    <td>
-                      {record.quilometragem_saida} km / {record.quilometragem_entrada} km
-                    </td>
-                    <td>
-                      {record.nivel_combustivel_saida}% / {record.nivel_combustivel_entrada}%
-                    </td>
-                    <td>{record.abastecimentoExtra} L</td>
-                  </tr>
-                ))}
-                {filteredRecords.length === 0 && (
+                {filteredRecords.length > 0 ? (
+                  filteredRecords.map((record) => (
+                    <tr key={record.idRegistro}>
+                      <td>{record.idRegistro}</td>
+                      <td>{record.motoristaId}</td>
+                      <td>{record.carroId}</td>
+                      <td>{new Date(record.dataSaida).toLocaleString()}</td>
+                      <td>{new Date(record.dataEntrada).toLocaleString()}</td>
+                      <td>
+                        {record.quilometragemSaida} km / {record.quilometragemEntrada} km
+                      </td>
+                      <td>
+                        {record.nivelCombustivelSaida}% / {record.nivelCombustivelEntrada}%
+                      </td>
+                      <td>{record.abastecimentoExtra} L</td>
+                    </tr>
+                  ))
+                ) : (
                   <tr>
-                    <td colSpan="8" className="text-center text-muted">
+                    <td colSpan="8" className="text-center">
                       Nenhum registro encontrado.
                     </td>
                   </tr>
@@ -130,6 +172,7 @@ const TripHistory = () => {
         </div>
       </main>
       <Footer />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
