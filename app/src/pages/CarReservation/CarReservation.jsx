@@ -216,6 +216,17 @@ const CarReservation = () => {
       return;
     }
   
+    // Atualizar os detalhes do carro e do motorista antes de abrir o modal
+    const selectedCar = carDetails[carroId];
+    const selectedDriver = driverDetails[motoristaId];
+  
+    if (selectedCar) {
+      setCarDetails({ ...carDetails, [carroId]: selectedCar });
+    }
+    if (selectedDriver) {
+      setDriverDetails({ ...driverDetails, [motoristaId]: selectedDriver });
+    }
+  
     setShowConfirmModal(true);
   };
 
