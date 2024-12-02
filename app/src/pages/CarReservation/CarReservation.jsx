@@ -31,9 +31,11 @@ const CarReservation = () => {
   const [loading, setLoading] = useState(true);
   const [reservationToDelete, setReservationToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(true);
 
   const fetchReservationsAndAvailability = async () => {
     setLoading(true);
+    setIsLoadingDetails(true);
     try {
       const resResponse = await fetch(`${API_URL}/reservas`);
       if (!resResponse.ok) {
@@ -75,6 +77,7 @@ const CarReservation = () => {
       console.error("Erro ao buscar dados:", error);
     } finally {
       setLoading(false);
+      setIsLoadingDetails(false);
     }
   };
 
@@ -211,7 +214,12 @@ const CarReservation = () => {
   const handleConfirmModalShow = () => {
     const { carroId, motoristaId, dataFim } = newReservation;
 
-    // Verificar se os detalhes do carro e do motorista estão disponíveis
+    // Verificar se os detalhes do carro e do motorista estão disponíveis e se não estão carregando
+    if (isLoadingDetails) {
+      toast.info("Aguarde enquanto os detalhes estão sendo carregados.");
+      return;
+    }
+
     if (!carDetails[carroId] || !driverDetails[motoristaId]) {
       toast.warn("Por favor, selecione um carro e um motorista válidos.");
       return;
