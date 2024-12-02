@@ -62,7 +62,7 @@ const handleLogout = () => {
   
   // Redireciona para a página de login após um delay de 2 segundos
   setTimeout(() => {
-    location.reload();
+    navigate('/');
   }, 2000); // Delay de 2 segundos antes de redirecionar
 };
 
