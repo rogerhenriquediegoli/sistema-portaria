@@ -121,22 +121,12 @@ const CarReservation = () => {
       const res = await fetch(url, { method: "POST" });
   
       if (!res.ok) {
-        const errorText = await res.text(); // Ler a resposta como texto
-        let errorMessage = "Erro desconhecido";
-  
-        // Tentar analisar a resposta como JSON
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData?.message || errorMessage;
-        } catch (jsonError) {
-          errorMessage = errorText; // Se não for JSON, usar a resposta como está
-        }
-  
-        toast.error(`${errorMessage}`);
+        const errorText = await res.text();
+        toast.error(`${errorText}`);
         return; // Retorna se houver erro
       }
   
-      const responseText = await res.text(); // Ler a resposta novamente
+      const responseText = await res.text();
       let createdReservation = { message: responseText };  // Caso a resposta seja uma string
   
       try {
@@ -230,15 +220,16 @@ const CarReservation = () => {
     const selectedCar = carDetails[carroId];
     const selectedDriver = driverDetails[motoristaId];
   
-    if (selectedCar) {
+    if (selectedCar && selectedDriver) {
+      // Atualize os detalhes do carro e motorista apenas se ambos forem encontrados
       setCarDetails({ ...carDetails, [carroId]: selectedCar });
-    }
-    if (selectedDriver) {
       setDriverDetails({ ...driverDetails, [motoristaId]: selectedDriver });
+      setShowConfirmModal(true);  // Mostrar o modal após garantir que temos os dados
+    } else {
+      toast.error("Carro ou motorista não encontrados. Tente novamente.");
     }
-  
-    setShowConfirmModal(true);
   };
+  
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
