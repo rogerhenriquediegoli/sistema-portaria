@@ -145,6 +145,16 @@ const CarManagement = () => {
         setCars(cars.map((car) => (car.idCarro === updatedCar.idCarro ? updatedCar : car)));
         setEditingCar(null); // Resetando a edição
         toast.success("Carro atualizado com sucesso!");
+
+        // Limpar os dados do formulário após a atualização
+        setNewCar({
+          placa: "",
+          modelo: "",
+          status: "Aguardando Revisão",
+          capacidadeTanque: "",
+          consumoMedio: "",
+          quilometragemAtual: "",
+        });
       } else {
         const errorData = await response.text();
         toast.error(errorData);
