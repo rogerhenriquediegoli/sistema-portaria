@@ -11,6 +11,7 @@ const Cadastro = () => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false); // Estado para controle de carregamento
   const navigate = useNavigate();
 
   // Função para enviar os dados do formulário para a API
@@ -29,6 +30,8 @@ const Cadastro = () => {
       email,
       senha,
     };
+
+    setLoading(true); // Iniciar o carregamento
 
     try {
       // Enviar requisição POST para o backend
@@ -55,6 +58,8 @@ const Cadastro = () => {
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
       toast.error('Erro ao cadastrar. Tente novamente mais tarde.'); // Notificação de erro
+    } finally {
+      setLoading(false); // Finalizar o carregamento
     }
   };
 
@@ -112,7 +117,9 @@ const Cadastro = () => {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary btn-block">Cadastrar</button>
+          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+            {loading ? 'Carregando...' : 'Cadastrar'} {/* Alterar texto do botão */}
+          </button>
         </form>
         <Link to="/" className="registro">Já tem uma conta? Faça login</Link>
       </div>
