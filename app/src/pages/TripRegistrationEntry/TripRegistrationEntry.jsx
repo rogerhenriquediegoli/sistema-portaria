@@ -230,7 +230,7 @@ const TripRegistrationEntry = () => {
       {/* Modal de Confirmação */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirmar Registro de Entrada</Modal.Title>
+          <Modal.Title className="text-dark"><i className="bi bi-box-arrow-in-left"></i> Confirmar Registro de Entrada</Modal.Title>
         </Modal.Header>
         <Modal.Body className="text-dark">
           {selectedCar && selectedDriver ? (

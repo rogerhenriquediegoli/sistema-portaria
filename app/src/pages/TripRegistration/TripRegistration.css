@@ -15,6 +15,10 @@
   .card-header {
     text-align: center; /* Centraliza o texto do cabeçalho */
   }
+
+  .card {
+    background-color: red;
+  }
   
   button {
     padding: 10px 20px;

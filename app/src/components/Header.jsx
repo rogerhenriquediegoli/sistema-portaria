@@ -12,7 +12,7 @@ const Header = () => {
       </div>
       <div>
         <a href="/dashboard" className="btn btn-primary">
-          Dashboard
+          <i className="bi bi-house"></i> Dashboard
         </a>
       </div>
     </header>

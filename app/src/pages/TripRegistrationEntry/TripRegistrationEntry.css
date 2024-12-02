@@ -8,7 +8,6 @@
   
   .card-registration {
     max-width: 400px; /* Limita a largura máxima da caixa */
-    width: 100%; /* Faz a caixa ocupar 100% da largura disponível até o máximo */
     margin-top: 120px; /* Espaço acima da caixa */
   }
   

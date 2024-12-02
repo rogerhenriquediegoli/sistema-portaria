@@ -288,7 +288,7 @@ const TripRegistrationExit = () => {
       {/* Modal de Confirmação */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirmar Registro de Saída</Modal.Title>
+          <Modal.Title className="text-dark"><i className="bi bi-box-arrow-up-right"></i> Confirmar Registro de Saída</Modal.Title>
         </Modal.Header>
         <Modal.Body className="text-dark">
           <div className="mb-3">

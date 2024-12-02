@@ -221,6 +221,7 @@ const DriverManagement = () => {
                   value={newDriver.cpf}
                   onChange={handleInputChange}
                   placeholder="Ex.: 12345678901"
+                  disabled={editingDriver}
                 />
               </div>
               <div className="col-md-3">
@@ -233,6 +234,7 @@ const DriverManagement = () => {
                   value={newDriver.nome}
                   onChange={handleInputChange}
                   placeholder="Ex.: João Silva"
+                  disabled={editingDriver}
                 />
               </div>
               <div className="col-md-3">

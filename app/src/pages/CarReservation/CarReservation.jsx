@@ -511,7 +511,7 @@ const CarReservation = () => {
 {/* Modal de Confirmação */}
 <Modal show={showConfirmModal} onHide={handleConfirmModalClose}>
   <Modal.Header closeButton>
-    <Modal.Title>Confirmar Reserva</Modal.Title>
+    <Modal.Title className="text-dark"><i className="bi bi-calendar"></i> Confirmar Reserva</Modal.Title>
   </Modal.Header>
   <Modal.Body className="text-dark">
     {newReservation.carroId && newReservation.motoristaId ? (
@@ -565,7 +565,7 @@ const CarReservation = () => {
 {/* Modal de Cancelamento de Reserva */}
 <Modal show={showCancelModal} onHide={handleCancelModalClose}>
   <Modal.Header closeButton>
-    <Modal.Title><i className="bi bi-x-circle"></i> Cancelar Reserva</Modal.Title>
+    <Modal.Title className="text-dark"><i className="bi bi-x-circle"></i> Cancelar Reserva</Modal.Title>
   </Modal.Header>
   <Modal.Body className="text-dark">
     {reservationToCancel && carDetails[reservationToCancel.carroId] && driverDetails[reservationToCancel.motoristaId] ? (
@@ -613,7 +613,7 @@ const CarReservation = () => {
 {showDeleteModal && (
   <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
     <Modal.Header closeButton>
-      <Modal.Title><i className="bi bi-trash"></i> Confirmar Exclusão</Modal.Title>
+      <Modal.Title className="text-dark"><i className="bi bi-trash"></i> Confirmar Exclusão</Modal.Title>
     </Modal.Header>
     <Modal.Body className="text-dark">
       {reservationToDelete && carDetails[reservationToDelete.carroId] && driverDetails[reservationToDelete.motoristaId] ? (

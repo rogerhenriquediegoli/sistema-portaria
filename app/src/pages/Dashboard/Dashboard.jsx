@@ -44,7 +44,6 @@ const Dashboard = () => {
           setLoading(false); // Finaliza o carregamento
         }
       };
-
       fetchData();
     return 
   }, [navigate]);

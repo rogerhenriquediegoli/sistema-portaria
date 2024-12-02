@@ -70,6 +70,17 @@ const TripHistory = () => {
 
     const updatedFilters = { ...filters, [name]: type === "checkbox" ? checked : value };
     const filtered = records.filter((record) => {
+      const matchesDataSaida =
+  !updatedFilters.dataSaida ||
+  (record.dataSaida &&
+    new Date(record.dataSaida).toISOString().split("T")[0] === updatedFilters.dataSaida);
+
+const matchesDataEntrada =
+  !updatedFilters.dataEntrada ||
+  (record.dataEntrada &&
+    new Date(record.dataEntrada).toISOString().split("T")[0] === updatedFilters.dataEntrada);
+
+
       const matchesMotorista =
         !updatedFilters.motorista ||
         (record.motoristaNome && record.motoristaNome.toLowerCase().includes(updatedFilters.motorista.toLowerCase())) ||
@@ -94,12 +105,6 @@ const TripHistory = () => {
         !updatedFilters.nivelCombustivelEntrada ||
         (record.nivelCombustivelEntrada !== null &&
           record.nivelCombustivelEntrada.toString().includes(updatedFilters.nivelCombustivelEntrada));
-      const matchesDataSaida =
-        !updatedFilters.dataSaida ||
-        (record.dataSaida && new Date(record.dataSaida).toLocaleDateString() === new Date(updatedFilters.dataSaida).toLocaleDateString());
-      const matchesDataEntrada =
-        !updatedFilters.dataEntrada ||
-        (record.dataEntrada && new Date(record.dataEntrada).toLocaleDateString() === new Date(updatedFilters.dataEntrada).toLocaleDateString());
       const matchesStatus = !updatedFilters.status || getStatus(record) === updatedFilters.status;
       const matchesAbastecimentoExtra = !updatedFilters.abastecimentoExtra || (record.abastecimentoExtra > 0);
 
