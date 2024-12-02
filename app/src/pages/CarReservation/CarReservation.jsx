@@ -210,12 +210,18 @@ const CarReservation = () => {
   const handleConfirmModalClose = () => setShowConfirmModal(false);
   const handleConfirmModalShow = () => {
     const { carroId, motoristaId, dataFim } = newReservation;
-  
+
+    // Verificar se os detalhes do carro e do motorista estão disponíveis
+    if (!carDetails[carroId] || !driverDetails[motoristaId]) {
+      toast.warn("Por favor, selecione um carro e um motorista válidos.");
+      return;
+    }
+
     if (!carroId || !motoristaId || !dataFim) {
       toast.warn("Todos os campos devem ser preenchidos antes de continuar.");
       return;
     }
-  
+
     setShowConfirmModal(true);
   };
 
@@ -358,7 +364,7 @@ const CarReservation = () => {
 
       {/* Filtros */}
     <form className="row g-3 mb-4">
-    <div className="card-header bg-primary text-white">
+    <div className="card-header bg-info text-white">
     <h5><i className="bi bi-funnel"></i> Filtros</h5>
   </div>
       <div className="col-md-3">
