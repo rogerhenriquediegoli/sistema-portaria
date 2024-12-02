@@ -1,5 +1,6 @@
 import React from 'react';
 import './Header.css'; // Se necessário, crie um CSS específico para o Header
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   return (
@@ -11,9 +12,11 @@ const Header = () => {
         <p>Sistema de portaria para controle de veículos e motoristas</p>
       </div>
       <div>
-        <a href="/dashboard" className="btn btn-primary">
-          <i className="bi bi-house"></i> Dashboard
-        </a>
+        <Link
+          to="/dashboard"
+          className="btn btn-primary">
+              <i className="bi bi-house"></i> Dashboard
+        </Link>        
       </div>
     </header>
   );
