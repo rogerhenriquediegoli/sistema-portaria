@@ -21,7 +21,6 @@ function App() {
   const isAuthenticated = localStorage.getItem('userId'); // Verifica se o usuário está logado
   
   return (
-    <Router>
       <Routes>
         {/* Rotas públicas - Login e Cadastro */}
         <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login/>} />
@@ -66,7 +65,6 @@ function App() {
           element={isAuthenticated ? <CarReview/> : <Navigate to="/" />}
         />
       </Routes>
-    </Router>
   );
 }
 
