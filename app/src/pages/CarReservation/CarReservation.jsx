@@ -25,7 +25,6 @@ const CarReservation = () => {
   });
   const [carDetails, setCarDetails] = useState({});
   const [driverDetails, setDriverDetails] = useState({});
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [reservationToCancel, setReservationToCancel] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -207,8 +206,6 @@ const CarReservation = () => {
     setReservationToCancel(null);
   };
 
-  const handleConfirmModalClose = () => setShowConfirmModal(false);
-
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
@@ -337,7 +334,7 @@ const CarReservation = () => {
             <button
               type="button"
               className="btn btn-info"
-              onClick={handleConfirmModalClose}
+              onClick={handleConfirmModalShow}
               disabled={availableCars.length === 0 || availableDrivers.length === 0}
             >
               Criar Reserva
