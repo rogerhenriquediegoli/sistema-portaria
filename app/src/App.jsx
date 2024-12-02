@@ -21,7 +21,6 @@ function App() {
   const isAuthenticated = localStorage.getItem('userId'); // Verifica se o usuário está logado
   
   return (
-    <BrowserRouter>
     <Router>
       <Routes>
         {/* Rotas públicas - Login e Cadastro */}
@@ -68,7 +67,6 @@ function App() {
         />
       </Routes>
     </Router>
-    </BrowserRouter>
   );
 }
 
