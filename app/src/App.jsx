@@ -15,7 +15,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'; // Para os ícones do Bootstr
 import CarReview from './pages/CarReview/CarReview.jsx';
 
 // Definir a URL da API
-export const API_URL = 'http://localhost:8080/api'; // Local ou outro servidor de produção
+export const API_URL = 'https://sistema-portaria-api.onrender.com/api'; // Local ou outro servidor de produção
 
 function App() {
   const isAuthenticated = localStorage.getItem('userId'); // Verifica se o usuário está logado
