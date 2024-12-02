@@ -313,7 +313,7 @@ const CarReservation = () => {
             >
               <option value="">Selecione...</option>
               {availableCars.map((car) => (
-                <option key={car.idcarro} value={car.idcarro}>
+                <option key={car.carroId} value={car.carroId}>
                   {car.modelo} - {car.placa}
                 </option>
               ))}
@@ -333,7 +333,7 @@ const CarReservation = () => {
             >
               <option value="">Selecione...</option>
               {availableDrivers.map((driver) => (
-                <option key={driver.idmotorista} value={driver.idmotorista}>
+                <option key={driver.idMotorista} value={driver.idMotorista}>
                   {driver.nome} - {driver.cpf}
                 </option>
               ))}
