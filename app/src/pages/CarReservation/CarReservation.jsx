@@ -121,12 +121,22 @@ const CarReservation = () => {
       const res = await fetch(url, { method: "POST" });
   
       if (!res.ok) {
-        const errorText = await res.text();
-        toast.error(`${errorText}`);
+        const errorText = await res.text(); // Ler a resposta como texto
+        let errorMessage = "Erro desconhecido";
+  
+        // Tentar analisar a resposta como JSON
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData?.message || errorMessage;
+        } catch (jsonError) {
+          errorMessage = errorText; // Se não for JSON, usar a resposta como está
+        }
+  
+        toast.error(`${errorMessage}`);
         return; // Retorna se houver erro
       }
   
-      const responseText = await res.text();
+      const responseText = await res.text(); // Ler a resposta novamente
       let createdReservation = { message: responseText };  // Caso a resposta seja uma string
   
       try {
