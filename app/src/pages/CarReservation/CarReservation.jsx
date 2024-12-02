@@ -334,7 +334,7 @@ const CarReservation = () => {
             <button
               type="button"
               className="btn btn-info"
-              onClick={handleConfirmModalShow}
+              onClick={handleAddReservation}
               disabled={availableCars.length === 0 || availableDrivers.length === 0}
             >
               Criar Reserva
@@ -587,8 +587,6 @@ const CarReservation = () => {
     </Modal.Footer>
   </Modal>
 )}
-
-
 
 
       <Footer />
