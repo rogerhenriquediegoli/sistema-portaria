@@ -526,6 +526,7 @@ const CarReservation = () => {
   </Modal.Header>
   <Modal.Body className="text-dark">
     {newReservation.carroId && newReservation.motoristaId ? (
+      console.log(carDetails[newReservation.carroId]),
       <>
         <div className="mb-3">
           <h5><i className="bi bi-car-front"></i> Carro</h5>
