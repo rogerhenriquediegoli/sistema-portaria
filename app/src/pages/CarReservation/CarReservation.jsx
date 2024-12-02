@@ -220,11 +220,6 @@ const CarReservation = () => {
       return;
     }
 
-    if (!carDetails[carroId] || !driverDetails[motoristaId]) {
-      toast.warn("Por favor, selecione um carro e um motorista válidos.");
-      return;
-    }
-
     if (!carroId || !motoristaId || !dataFim) {
       toast.warn("Todos os campos devem ser preenchidos antes de continuar.");
       return;
