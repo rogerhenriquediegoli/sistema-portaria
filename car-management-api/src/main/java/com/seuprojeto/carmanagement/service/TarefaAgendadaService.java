@@ -24,7 +24,6 @@ public class TarefaAgendadaService {
     @Scheduled(cron = "0 0/3 * * * ?") // Executa a cada 3 minutos
     @Transactional
     public void verificarReservasEMotoristas() {
-        System.out.println("Teste");
         verificarReservas();
         verificarMotoristas();
     }

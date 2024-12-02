@@ -40,10 +40,14 @@ const Login = () => {
 
         toast.success('Login realizado com sucesso!');
 
-        // Delay de 2 segundos antes de redirecionar para o dashboard
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 2000); // Delay de 2 segundos antes de redirecionar para o dashboard
+        // Verifica se já está redirecionando para evitar múltiplas chamadas
+        if (!loading) {
+          setLoading(true); // Inicia o carregamento
+          // Delay de 2 segundos antes de redirecionar para o dashboard
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 2000); // Delay de 2 segundos antes de redirecionar para o dashboard
+        }
       } else {
         const error = await response.text();
         toast.error(`Erro: ${error}`); // Exibe uma notificação de erro

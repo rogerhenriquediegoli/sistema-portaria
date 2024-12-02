@@ -27,8 +27,12 @@ const CarReservation = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [reservationToCancel, setReservationToCancel] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [reservationToDelete, setReservationToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchReservationsAndAvailability = async () => {
+    setLoading(true);
     try {
       const resResponse = await fetch(`${API_URL}/reservas`);
       const reservationsData = await resResponse.json();
@@ -58,6 +62,8 @@ const CarReservation = () => {
     } catch (error) {
       toast.error("Erro ao buscar dados do servidor.");
       console.error("Erro ao buscar dados:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -239,6 +245,33 @@ const CarReservation = () => {
 
   const isAnyFilterActive = Object.values(filters).some(value => value !== "");
 
+  const confirmDeleteReservation = (reservation) => {
+    setReservationToDelete(reservation);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteReservation = async () => {
+    if (!reservationToDelete) return;
+
+    try {
+      const response = await fetch(`${API_URL}/reservas/${reservationToDelete.idReserva}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setReservations((prev) => prev.filter((res) => res.idReserva !== reservationToDelete.idReserva));
+        toast.success("Reserva excluída com sucesso!");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Erro ao excluir reserva.");
+      }
+    } catch (error) {
+      console.error("Erro ao excluir reserva", error);
+      toast.error("Erro ao excluir reserva.");
+    }
+
+    setShowDeleteModal(false);
+  };
+
   return (
     <div className="reserve-car">
       <Header />
@@ -417,42 +450,60 @@ const CarReservation = () => {
     </tr>
   </thead>
   <tbody>
-    {filteredReservations.map((res) => {
-      const car = carDetails[res.carroId];
-      const driver = driverDetails[res.motoristaId];
-      return (
-        <tr key={res.idReserva}>
-          <td>{car ? `${car.modelo} - ${car.placa}` : "Carro não encontrado"}</td>
-          <td>{driver ? `${driver.nome} - ${driver.cpf}` : "Motorista não encontrado"}</td>
-          <td>{res.dataFim}</td>
-          <td>
-            <span
-              className={`badge ${
-                res.status === "Ativa"
-                  ? "bg-success"
-                  : res.status === "Cancelada"
-                  ? "bg-danger"
-                  : res.status === "Concluída"
-                  ? "bg-info"
-                  : "bg-secondary"
-              }`}
-            >
-              {res.status}
-            </span>
-          </td>
-          <td>
-            {res.status === "Ativa" && (
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={() => handleCancelModalShow(res.idReserva)}
+    {loading ? (
+      <tr>
+        <td colSpan="5" className="text-center">Carregando...</td>
+      </tr>
+    ) : filteredReservations.length === 0 ? (
+      <tr>
+        <td colSpan="5" className="text-center">Nenhuma reserva encontrada.</td>
+      </tr>
+    ) : (
+      filteredReservations.map((res) => {
+        const car = carDetails[res.carroId];
+        const driver = driverDetails[res.motoristaId];
+        return (
+          <tr key={res.idReserva}>
+            <td>{car ? `${car.modelo} - ${car.placa}` : "Carro não encontrado"}</td>
+            <td>{driver ? `${driver.nome} - ${driver.cpf}` : "Motorista não encontrado"}</td>
+            <td>{res.dataFim}</td>
+            <td>
+              <span
+                className={`badge ${
+                  res.status === "Ativa"
+                    ? "bg-success"
+                    : res.status === "Cancelada"
+                    ? "bg-danger"
+                    : res.status === "Concluída"
+                    ? "bg-info"
+                    : "bg-secondary"
+                }`}
               >
-                <i className="bi bi-x-circle"></i> Cancelar
-              </button>
-            )}
-          </td>
-        </tr>
-      );
-    })}
+                {res.status}
+              </span>
+            </td>
+            <td>
+              {res.status === "Ativa" && (
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={() => handleCancelModalShow(res.idReserva)}
+                >
+                  <i className="bi bi-x-circle"></i> Cancelar
+                </button>
+              )}
+              {res.status === "Concluída" || res.status === "Cancelada" ? (
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={() => confirmDeleteReservation(res)}
+                >
+                  <i className="bi bi-trash"></i> Excluir
+                </button>
+              ) : null}
+            </td>
+          </tr>
+        );
+      })
+    )}
   </tbody>
 </table>
 
@@ -561,6 +612,52 @@ const CarReservation = () => {
     </Button>
   </Modal.Footer>
 </Modal>
+
+{/* Modal de Confirmação de Exclusão */}
+{showDeleteModal && (
+  <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+    <Modal.Header closeButton>
+      <Modal.Title><i className="bi bi-trash"></i> Confirmar Exclusão</Modal.Title>
+    </Modal.Header>
+    <Modal.Body className="text-dark">
+      {reservationToDelete && carDetails[reservationToDelete.carroId] && driverDetails[reservationToDelete.motoristaId] ? (
+        <>
+          <div className="mb-3">
+            <h5><i className="bi bi-person-fill"></i> Motorista</h5>
+            <p>
+              <strong>Nome:</strong> {driverDetails[reservationToDelete.motoristaId].nome} <br />
+              <strong>CPF:</strong> {driverDetails[reservationToDelete.motoristaId].cpf}
+            </p>
+          </div>
+          <div className="mb-3">
+            <h5><i className="bi bi-car-front"></i> Carro</h5>
+            <p>
+              <strong>Modelo:</strong> {carDetails[reservationToDelete.carroId].modelo} <br />
+              <strong>Placa:</strong> {carDetails[reservationToDelete.carroId].placa}
+            </p>
+          </div>
+          <div className="mb-3">
+            <h5><i className="bi bi-calendar-date"></i> Data de Fim</h5>
+            <p><strong>{formatDate(reservationToDelete.dataFim)}</strong></p>
+          </div>
+          <div className="alert alert-warning" role="alert">
+            <strong>Atenção:</strong> Ao confirmar, a reserva será removida permanentemente.
+          </div>
+        </>
+      ) : (
+        <p>Carregando detalhes...</p>
+      )}
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+        Não, Manter Reserva
+      </Button>
+      <Button variant="danger" onClick={handleDeleteReservation}>
+        Sim, Excluir Reserva
+      </Button>
+    </Modal.Footer>
+  </Modal>
+)}
 
 
 

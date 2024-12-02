@@ -168,7 +168,7 @@ const handleLogout = () => {
                   <span>Aguardando Revisão:</span>
                   <div className="progress">
                     <div
-                      className="progress-bar bg-warning"
+                      className="progress-bar bg-secondary"
                       style={{
                         width: `${(carsData["Aguardando Revisão"] / totalCars) * 100}%`, // Corrigido para acessar a chave correta
                       }}

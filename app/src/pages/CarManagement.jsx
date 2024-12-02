@@ -22,10 +22,12 @@ const CarManagement = () => {
   const [showModal, setShowModal] = useState(false); // Controle do modal de confirmação
   const [showDeleteModal, setShowDeleteModal] = useState(false); // Controle do modal de exclusão
   const [carToDelete, setCarToDelete] = useState(null); // Carro que será excluído
+  const [loading, setLoading] = useState(true); // Estado para controle de carregamento
 
   // Carregar os carros ao iniciar
   useEffect(() => {
     const fetchCars = async () => {
+      setLoading(true); // Iniciar carregamento
       try {
         const response = await fetch(`${API_URL}/carros`);
         if (response.ok) {
@@ -36,6 +38,8 @@ const CarManagement = () => {
         }
       } catch (error) {
         console.error("Erro de rede", error);
+      } finally {
+        setLoading(false); // Finalizar carregamento
       }
     };
     fetchCars();
@@ -345,7 +349,7 @@ const CarManagement = () => {
                   type="text"
                   className="form-control"
                   id="search"
-                  placeholder="Buscar..."
+                  placeholder="Ex.: ABC1D45 ou Civic"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -382,34 +386,44 @@ const CarManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredCars.map((car) => (
-                  <tr key={car.idCarro}>
-                    <td>{car.placa}</td>
-                    <td>{car.modelo}</td>
-                    <td>{car.status}</td>
-                    <td>{car.capacidadeTanque} L</td>
-                    <td>{car.consumoMedio} Km/L</td>
-                    <td>{car.quilometragemAtual} Km</td>
-                    <td>{car.nivelCombustivelAtual ?? "null"}</td>
-                    <td>
-                      <button
-                        className="btn btn-sm btn-warning me-2"
-                        onClick={() => handleEditCar(car)}
-                        disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} // Desabilita se o status não for permitido
-                      >
-                        <i className="bi bi-pencil"></i> Editar
-                      </button>
-
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => confirmDeleteCar(car)} // Exibir modal de confirmação de exclusão
-                        disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} // Desabilita se o status não for válido para exclusão
-                      >
-                        <i className="bi bi-trash"></i> Excluir
-                      </button>
-                    </td>
+                {loading ? ( // Verifica se está carregando
+                  <tr>
+                    <td colSpan="8" className="text-center">Carregando...</td>
                   </tr>
-                ))}
+                ) : filteredCars.length === 0 ? ( // Verifica se não há carros
+                  <tr>
+                    <td colSpan="8" className="text-center">Nenhum carro encontrado</td>
+                  </tr>
+                ) : (
+                  filteredCars.map((car) => (
+                    <tr key={car.idCarro}>
+                      <td>{car.placa}</td>
+                      <td>{car.modelo}</td>
+                      <td>{car.status}</td>
+                      <td>{car.capacidadeTanque} L</td>
+                      <td>{car.consumoMedio} Km/L</td>
+                      <td>{car.quilometragemAtual} Km</td>
+                      <td>{car.nivelCombustivelAtual ?? "null"}</td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-warning me-2"
+                          onClick={() => handleEditCar(car)}
+                          disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} // Desabilita se o status não for permitido
+                        >
+                          <i className="bi bi-pencil"></i> Editar
+                        </button>
+
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => confirmDeleteCar(car)} // Exibir modal de confirmação de exclusão
+                          disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} // Desabilita se o status não for válido para exclusão
+                        >
+                          <i className="bi bi-trash"></i> Excluir
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
 

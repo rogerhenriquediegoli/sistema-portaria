@@ -15,6 +15,7 @@ const TripRegistrationEntry = () => {
   const [selectedDriver, setSelectedDriver] = useState("");
   const [entryData, setEntryData] = useState({
     quilometragemEntrada: "",
+    nivelCombustivelEntrada: "",  // Novo campo para o nível de combustível de entrada
   });
   const [showModal, setShowModal] = useState(false);
   const [carDetails, setCarDetails] = useState({});
@@ -76,20 +77,27 @@ const TripRegistrationEntry = () => {
 
   // Verificar se todos os campos foram preenchidos
   useEffect(() => {
-    if (selectedCar && selectedDriver && entryData.quilometragemEntrada) {
+    if (selectedCar && selectedDriver && entryData.quilometragemEntrada && entryData.nivelCombustivelEntrada) {
       setFormLocked(false); // Desbloquear o formulário
     } else {
       setFormLocked(true); // Bloquear o formulário
     }
-  }, [selectedCar, selectedDriver, entryData.quilometragemEntrada]);
+  }, [selectedCar, selectedDriver, entryData.quilometragemEntrada, entryData.nivelCombustivelEntrada]);
 
   const handleSubmit = async () => {
-    if (!selectedCar || !selectedDriver || !entryData.quilometragemEntrada) {
+    if (!selectedCar || !selectedDriver || !entryData.quilometragemEntrada || !entryData.nivelCombustivelEntrada) {
       toast.warn("Todos os campos são obrigatórios.");
       return;
     }
 
-    const url = `${API_URL}/registros/registroEntrada?carroId=${selectedCar}&motoristaId=${selectedDriver}&quilometragemEntrada=${entryData.quilometragemEntrada}`;
+    // Validação do combustível de entrada
+    const car = carDetails[selectedCar];
+    if (entryData.nivelCombustivelEntrada <= 0 || entryData.nivelCombustivelEntrada > car.capacidadeTanque) {
+      toast.error(`O nível de combustível deve ser maior que 0 e menor ou igual a capacidade do tanque (${car.capacidadeTanque} litros).`);
+      return;
+    }
+
+    const url = `${API_URL}/registros/registroEntrada?carroId=${selectedCar}&motoristaId=${selectedDriver}&quilometragemEntrada=${entryData.quilometragemEntrada}&nivelCombustivelEntradaInformado=${entryData.nivelCombustivelEntrada}`;
 
     try {
       const response = await fetch(url, { method: "PUT" });
@@ -122,13 +130,13 @@ const TripRegistrationEntry = () => {
       <Header />
       <main className="container my-5">
         <div className="card shadow">
-          <div className="card-header bg-primary text-white">
+          <div className="card-header bg-warning text-white">
             <h4>
               <i className="bi bi-box-arrow-in-left"></i> Registrar Entrada
             </h4>
           </div>
           <div className="card-body">
-          {(!cars.length || !drivers.length) && (
+            {(!cars.length || !drivers.length) && (
               <div className="alert alert-warning text-center">
                 <strong>Não há carros ou motoristas disponíveis no momento!</strong>
               </div>
@@ -173,6 +181,20 @@ const TripRegistrationEntry = () => {
               </div>
 
               <div className="mb-3">
+                <label htmlFor="nivelCombustivelEntrada" className="form-label">Nível de Combustível de Entrada (litros)</label>
+                <input
+                  type="number"
+                  id="nivelCombustivelEntrada"
+                  name="nivelCombustivelEntrada"
+                  className="form-control"
+                  value={entryData.nivelCombustivelEntrada}
+                  onChange={handleInputChange}
+                  required
+                  disabled={cars.length === 0 || drivers.length == 0}
+                />
+              </div>
+
+              <div className="mb-3">
                 <label htmlFor="horarioEntrada" className="form-label">Horário da Entrada</label>
                 <input
                   type="text"
@@ -187,9 +209,9 @@ const TripRegistrationEntry = () => {
 
               <button
                 type="button"
-                className="btn btn-primary w-100"
+                className="btn btn-warning w-100"
                 onClick={() => {
-                  if (selectedCar && selectedDriver && entryData.quilometragemEntrada) {
+                  if (selectedCar && selectedDriver && entryData.quilometragemEntrada && entryData.nivelCombustivelEntrada) {
                     handleFixTime(); // Fixar o horário ao clicar
                     handleOpenModal();
                   } else {
@@ -232,6 +254,11 @@ const TripRegistrationEntry = () => {
               <div className="mb-3">
                 <h5><i className="bi bi-calendar-date"></i> Quilometragem de Entrada</h5>
                 <p><strong>{entryData.quilometragemEntrada} km</strong></p>
+              </div>
+
+              <div className="mb-3">
+                <h5><i className="bi bi-tachometer"></i> Nível de Combustível</h5>
+                <p><strong>{entryData.nivelCombustivelEntrada} litros</strong></p>
               </div>
 
               <div className="mb-3">

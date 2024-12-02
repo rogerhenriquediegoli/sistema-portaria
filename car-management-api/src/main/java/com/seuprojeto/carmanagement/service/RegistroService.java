@@ -99,15 +99,10 @@ public class RegistroService {
     }
 
     @Transactional
-    public Registro registrarEntrada(Long carroId, Long motoristaId, int quilometragemEntrada) {
+    public Registro registrarEntrada(Long carroId, Long motoristaId, int quilometragemEntrada, double nivelCombustivelEntradaInformado) {
         // Recupera o registro ativo de viagem
-        Registro registro = registroRepository.findTopByCarroIdAndMotoristaIdOrderByDataSaidaDesc(carroId, motoristaId)
+        Registro registro = registroRepository.findByCarroIdAndMotoristaIdAndQuilometragemEntradaIsNull(carroId, motoristaId)
                 .orElseThrow(() -> new IllegalArgumentException("Não foi encontrada uma viagem ativa para o carro e motorista informados."));
-
-        // Valida se a quilometragem de entrada já foi registrada
-        if (registro.getQuilometragemEntrada() != null) {
-            throw new IllegalArgumentException("Este registro já foi finalizado.");
-        }
 
         Carro carro = carroService.getCarroById(carroId)
                 .orElseThrow(() -> new IllegalArgumentException("Carro não encontrado."));
@@ -117,7 +112,7 @@ public class RegistroService {
 
         // Verifica se a quilometragem de entrada é maior que a de saída
         if (quilometragemEntrada <= registro.getQuilometragemSaida()) {
-            throw new IllegalArgumentException("A quilometragem de entrada deve ser maior que a de saída ().");
+            throw new IllegalArgumentException("A quilometragem de entrada deve ser maior que a de saída.");
         }
 
         // Calcula a quilometragem rodada
@@ -127,16 +122,26 @@ public class RegistroService {
         double combustivelConsumido = quilometragemRodada / carro.getConsumoMedio();
 
         // Calcula o nível de combustível de entrada
-        double nivelCombustivelEntrada = registro.getNivelCombustivelSaida() - combustivelConsumido;
+        double nivelCombustivelEntradaCalculado = registro.getNivelCombustivelSaida() - combustivelConsumido;
+
+        // Verifica o nível de combustível informado pelo usuário
+        if (nivelCombustivelEntradaInformado <= 0) {
+            throw new IllegalArgumentException("O nível de combustível informado deve ser maior que 0.");
+        }
+
+        // Verifica se o nível de combustível informado é maior que a capacidade do tanque
+        if (nivelCombustivelEntradaInformado > carro.getCapacidadeTanque()) {
+            throw new IllegalArgumentException("O nível de combustível informado não pode ser maior que a capacidade do tanque (" + carro.getCapacidadeTanque() + " litros).");
+        }
 
         // Se o combustível consumido foi maior que o nível de combustível de saída, calcular o abastecimento extra
-        double abastecimentoExtra = nivelCombustivelEntrada < 0 ? Math.abs(nivelCombustivelEntrada) : 0;
+        double abastecimentoExtra = nivelCombustivelEntradaCalculado < 0 ? Math.abs(nivelCombustivelEntradaCalculado) : 0;
 
         // Atualiza o registro com a data de entrada, quilometragem de entrada, nível de combustível e abastecimento extra
         registro.setDataEntrada(LocalDateTime.now());
         registro.setQuilometragemEntrada(quilometragemEntrada);
-        registro.setNivelCombustivelEntrada(nivelCombustivelEntrada < 0 ? 0 : nivelCombustivelEntrada); // Se o combustível de entrada for negativo, considera 0
-        registro.setAbastecimentoExtra(abastecimentoExtra);
+        registro.setNivelCombustivelEntrada(nivelCombustivelEntradaCalculado < 0 ? nivelCombustivelEntradaInformado : nivelCombustivelEntradaCalculado); // Se o combustível de entrada for negativo, considera 0
+        registro.setAbastecimentoExtra(nivelCombustivelEntradaCalculado < 0 ? abastecimentoExtra + nivelCombustivelEntradaInformado : abastecimentoExtra);
 
         // Atualiza o status do motorista para "Disponível"
         motorista.setStatus("Disponível");
@@ -145,10 +150,11 @@ public class RegistroService {
         // Atualiza o status do carro para "Aguardando Revisão"
         carro.setStatus("Aguardando Revisão");
         carro.setQuilometragemAtual(quilometragemEntrada); // Atualiza a quilometragem do carro
-        carro.setNivelCombustivelAtual(nivelCombustivelEntrada < 0 ? 0 : nivelCombustivelEntrada); // Atualiza o nível de combustível do carro
+        carro.setNivelCombustivelAtual(nivelCombustivelEntradaCalculado < 0 ? nivelCombustivelEntradaInformado : nivelCombustivelEntradaCalculado); // Atualiza o nível de combustível do carro
         carroService.updateCarroSimple(carro.getIdCarro(), carro); // Atualiza o carro
 
         // Salva o registro atualizado
         return registroRepository.save(registro);
     }
+
 }

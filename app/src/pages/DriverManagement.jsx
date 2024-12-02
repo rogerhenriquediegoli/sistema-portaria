@@ -287,7 +287,7 @@ const DriverManagement = () => {
                   type="text"
                   className="form-control"
                   id="search"
-                  placeholder="Buscar..."
+                  placeholder="Ex.: 12345678901 ou João Silva"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />

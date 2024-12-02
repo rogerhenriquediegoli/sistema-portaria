@@ -10,17 +10,21 @@ import { API_URL } from "../App";
 const CarReview = () => {
   const [carros, setCarros] = useState([]);
   const [filteredCarros, setFilteredCarros] = useState([]);
-  const [filters, setFilters] = useState({ modelo: "", placa: "", quilometragem: "", nivelCombustivel: "" });
   const [showModal, setShowModal] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
   const [modalData, setModalData] = useState({
     novaQuilometragem: "",
     novoNivelCombustivel: "",
   });
-
-  const isAnyFilterActive = Object.values(filters).some((value) => value);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    modeloPlaca: "",
+    nivelCombustivel: "",
+    quilometragem: "",
+  });
 
   const fetchCarrosRevisao = () => {
+    setLoading(true);
     fetch(`${API_URL}/carros/aguardando`)
       .then((response) => {
         if (!response.ok) throw new Error("Erro ao buscar carros para revisão.");
@@ -30,34 +34,53 @@ const CarReview = () => {
         setCarros(data);
         setFilteredCarros(data);
       })
-      .catch((error) => toast.error("Erro ao carregar dados: " + error.message));
+      .catch((error) => toast.error("Erro ao carregar dados: " + error.message))
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     fetchCarrosRevisao();
   }, []);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    applyFilters();
+  }, [filters, carros]);
 
-    // Aplicar filtros
+  const applyFilters = () => {
+    const { modeloPlaca, nivelCombustivel, quilometragem } = filters;
+  
     const filtered = carros.filter((carro) => {
-      const matchesModelo = filters.modelo === "" || carro.modelo.toLowerCase().includes(filters.modelo.toLowerCase());
-      const matchesPlaca = filters.placa === "" || carro.placa.toLowerCase().includes(filters.placa.toLowerCase());
-      const matchesQuilometragem = filters.quilometragem === "" || carro.quilometragemAtual.toString().includes(filters.quilometragem);
-      const matchesNivelCombustivel = filters.nivelCombustivel === "" || (carro.nivelCombustivelAtual === null ? "Nulo" : carro.nivelCombustivelAtual.toString().includes(filters.nivelCombustivel));
-
-      return matchesModelo && matchesPlaca && matchesQuilometragem && matchesNivelCombustivel;
+      // Filtro de Modelo ou Placa
+      const matchesModeloPlaca =
+        carro.modelo.toLowerCase().includes(modeloPlaca.toLowerCase()) ||
+        carro.placa.toLowerCase().includes(modeloPlaca.toLowerCase());
+  
+      // Filtro de Nível de Combustível
+      const matchesNivelCombustivel =
+        carro.nivelCombustivelAtual === null
+          ? nivelCombustivel === ""
+          : carro.nivelCombustivelAtual.toString().includes(nivelCombustivel);
+  
+      // Filtro de Quilometragem
+      const matchesQuilometragem =
+        carro.quilometragemAtual.toString().includes(quilometragem);
+  
+      return matchesModeloPlaca && matchesNivelCombustivel && matchesQuilometragem;
     });
-
+  
     setFilteredCarros(filtered);
   };
+  
 
-  const clearFilters = () => {
-    setFilters({ modelo: "", placa: "", quilometragem: "", nivelCombustivel: "" });
-    setFilteredCarros(carros); // Restaura todos os carros
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+  
+    // Se o valor estiver vazio, define como uma string vazia
+    const newValue = value.trim();
+  
+    setFilters({ ...filters, [name]: newValue });
   };
+  
 
   const openModal = (carro) => {
     setSelectedCar(carro);
@@ -122,7 +145,7 @@ const CarReview = () => {
       <Header />
       <main className="container my-5">
         <div className="card shadow">
-          <div className="card-header bg-warning text-white">
+          <div className="card-header bg-secondary text-white">
             <h4>
               <i className="bi bi-wrench"></i> Carros Aguardando Revisão
             </h4>
@@ -130,64 +153,53 @@ const CarReview = () => {
           <div className="card-body">
             {/* Filtros */}
             <div className="border p-3 mb-4">
-              <div className="card-header bg-primary text-white">
+              <div className="card-header bg-secondary text-white">
                 <h5><i className="bi bi-funnel"></i> Filtros</h5>
               </div>
-              <div className="row g-3 mb-4">
-                <div className="col-md-3">
-                  <label htmlFor="modelo" className="form-label">Modelo</label>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label htmlFor="modeloPlaca" className="form-label">
+                    Modelo ou Placa
+                  </label>
                   <input
                     type="text"
                     className="form-control"
-                    id="modelo"
-                    placeholder="Filtrar por Modelo"
-                    name="modelo"
-                    value={filters.modelo}
+                    id="modeloPlaca"
+                    name="modeloPlaca"
+                    placeholder="Ex.: ABC1D45 ou Civic"
+                    value={filters.modeloPlaca}
                     onChange={handleFilterChange}
                   />
                 </div>
                 <div className="col-md-3">
-                  <label htmlFor="placa" className="form-label">Placa</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="placa"
-                    placeholder="Filtrar por Placa"
-                    name="placa"
-                    value={filters.placa}
-                    onChange={handleFilterChange}
-                  />
-                </div>
-                <div className="col-md-3">
-                  <label htmlFor="quilometragem" className="form-label">Quilometragem</label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    id="quilometragem"
-                    placeholder="Filtrar por Quilometragem"
-                    name="quilometragem"
-                    value={filters.quilometragem}
-                    onChange={handleFilterChange}
-                  />
-                </div>
-                <div className="col-md-3">
-                  <label htmlFor="nivelCombustivel" className="form-label">Nível de Combustível</label>
+                  <label htmlFor="nivelCombustivel" className="form-label">
+                    Nível de Combustível Atual
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     id="nivelCombustivel"
-                    placeholder="Filtrar por Nível de Combustível"
                     name="nivelCombustivel"
+                    placeholder="Ex.: 10 ou 10.5 L"
                     value={filters.nivelCombustivel}
                     onChange={handleFilterChange}
                   />
                 </div>
+                <div className="col-md-3">
+                  <label htmlFor="quilometragem" className="form-label">
+                    Quilometragem Atual
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="quilometragem"
+                    name="quilometragem"
+                    placeholder="Ex.: 10000 ou 10000.5 Km"
+                    value={filters.quilometragem}
+                    onChange={handleFilterChange}
+                  />
+                </div>
               </div>
-              {isAnyFilterActive && (
-                <button className="btn btn-secondary mb-3" onClick={clearFilters}>
-                  Limpar Filtros
-                </button>
-              )}
             </div>
 
             {/* Tabela de Carros */}
@@ -203,7 +215,15 @@ const CarReview = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredCarros.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" className="text-center">Carregando...</td>
+                  </tr>
+                ) : filteredCarros.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center">Nenhum carro encontrado</td>
+                  </tr>
+                ) : (
                   filteredCarros.map((carro) => (
                     <tr key={carro.idCarro}>
                       <td>{carro.modelo}</td>
@@ -220,12 +240,6 @@ const CarReview = () => {
                       </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="text-center">
-                      Nenhum carro aguardando revisão.
-                    </td>
-                  </tr>
                 )}
               </tbody>
             </table>

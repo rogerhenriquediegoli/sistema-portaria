@@ -44,10 +44,11 @@ public class RegistroController {
     @PutMapping("/registroEntrada")
     public ResponseEntity<Object> registrarEntrada(@RequestParam @NotNull Long carroId,
                                                    @RequestParam @NotNull Long motoristaId,
-                                                   @RequestParam @NotNull int quilometragemEntrada) {
+                                                   @RequestParam @NotNull int quilometragemEntrada,
+                                                   @RequestParam @NotNull double nivelCombustivelEntradaInformado) {
         try {
             // Chama o serviço para registrar a entrada com a quilometragem informada
-            Registro registroAtualizado = registroService.registrarEntrada(carroId, motoristaId, quilometragemEntrada);
+            Registro registroAtualizado = registroService.registrarEntrada(carroId, motoristaId, quilometragemEntrada, nivelCombustivelEntradaInformado);
 
             // Retorna o status 200 (OK) com o registro atualizado
             return ResponseEntity.ok(registroAtualizado);
@@ -56,6 +57,7 @@ public class RegistroController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @PostMapping("registroSaida")
     public ResponseEntity<?> createRegistro(@RequestParam Long carroId, @RequestParam Long motoristaId) {

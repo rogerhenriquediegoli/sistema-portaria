@@ -22,6 +22,19 @@ const TripRegistrationExit = () => {
   const [carDetails, setCarDetails] = useState({});
   const [driverDetails, setDriverDetails] = useState({});
   const navigate = useNavigate(); // Usando o useNavigate para redirecionamento
+  const [currentTime, setCurrentTime] = useState(""); // Estado para armazenar o horário atual
+  const [selectedTime, setSelectedTime] = useState(""); // Estado para armazenar o horário selecionado (fixado)
+
+  // Atualiza o horário atual a cada segundo
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const currentDate = new Date();
+      setCurrentTime(currentDate.toLocaleString()); // Exibe data e hora
+    }, 1000);
+
+    // Limpa o intervalo quando o componente for desmontado
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     // Fetch dos carros e motoristas
@@ -121,25 +134,23 @@ const TripRegistrationExit = () => {
 
       // Verificar status da resposta
       if (!res.ok) {
+        const responseText = await res.text(); // Ler a resposta uma vez
         let errorMessage = "Erro desconhecido";
-        let responseText = "";
 
         try {
-          const errorData = await res.json();
+          const errorData = JSON.parse(responseText);
           errorMessage = errorData?.message || errorMessage;
         } catch (jsonError) {
-          responseText = await res.text();
           errorMessage = responseText || errorMessage;
         }
 
-        toast.error(`Erro ao registrar a saída: ${errorMessage}`);
+        toast.error(`${errorMessage}`);
         console.error("Erro na resposta do servidor:", errorMessage);
         return;
       }
 
       // Processar a resposta
-      const responseText = await res.text();
-
+      const responseText = await res.text(); // Ler a resposta novamente
       let registroSaida = { message: responseText }; // Caso a resposta seja uma string
 
       try {
@@ -171,9 +182,11 @@ const TripRegistrationExit = () => {
     }
   };
 
+  const handleOpenModal = () => {
+    setSelectedTime(currentTime); // Fixar o horário atual ao abrir o modal
+    setShowModal(true);
+  };
 
-
-  const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
   return (
@@ -247,28 +260,22 @@ const TripRegistrationExit = () => {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="time" className="form-label">Horário de Saída</label>
+                <label htmlFor="horarioSaida" className="form-label">Horário da Saída</label>
                 <input
-                  type="datetime-local"
-                  id="time"
+                  type="text"
+                  id="horarioSaida"
                   name="horarioSaida"
                   className="form-control"
-                  value={tripData.horarioSaida}
-                  onChange={handleInputChange}
+                  value={selectedTime || currentTime} // Exibe o horário fixo ou o horário atual
+                  readOnly
                   disabled
                 />
               </div>
 
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (selectedCar && selectedDriver && tripData.horarioSaida) {
-                    handleOpenModal();
-                  } else {
-                    toast.warn("Todos os campos são obrigatórios.");
-                  }
-                }}
+                type="button"
                 className="btn btn-success w-100"
+                onClick={handleOpenModal}
                 disabled={!selectedCar || !selectedDriver || !tripData.horarioSaida}
               >
                 Registrar Saída
@@ -315,8 +322,8 @@ const TripRegistrationExit = () => {
           </div>
 
           <div className="mb-3">
-            <h5><i className="bi bi-calendar-date"></i> Horário de Saída</h5>
-            <p>{tripData.horarioSaida}</p>
+            <h5><i className="bi bi-clock"></i> Horário</h5>
+            <p><strong>{selectedTime || currentTime}</strong></p>
           </div>
 
           <div className="alert alert-info" role="alert">
@@ -330,7 +337,7 @@ const TripRegistrationExit = () => {
           <Button
             variant="primary"
             onClick={() => {
-              handleSubmit();  // Re-enviar o formulário
+              handleSubmit();
               handleCloseModal();
             }}
           >

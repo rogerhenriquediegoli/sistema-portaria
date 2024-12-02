@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface RegistroRepository extends JpaRepository<Registro, Long> {
     // Busca o último registro de viagem para o carro e motorista, ordenado pela data de saída (decrescente)
-    Optional<Registro> findTopByCarroIdAndMotoristaIdOrderByDataSaidaDesc(Long carroId, Long motoristaId);
+    Optional<Registro> findByCarroIdAndMotoristaIdAndQuilometragemEntradaIsNull(Long carroId, Long motoristaId);
+
 }
