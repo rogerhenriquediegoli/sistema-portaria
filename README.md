@@ -8,7 +8,6 @@ Este projeto é uma aplicação de gerenciamento de motoristas e carros para por
 - **Frontend**: React.js
 - **Banco de Dados**: PostgreSQL
 - **Docker**: Utilizado para containerização da aplicação
-- **Autenticação**: JWT (JSON Web Token) para segurança
 - **API RESTful**: Comunicação entre frontend e backend via API
 - **Hospedagem**: Render (para backend, frontend e banco de dados)
 
