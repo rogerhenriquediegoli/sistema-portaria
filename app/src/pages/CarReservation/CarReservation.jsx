@@ -95,9 +95,22 @@ const CarReservation = () => {
     fetchReservationsAndAvailability();
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
     setNewReservation({ ...newReservation, [name]: value });
+
+    // Quando um carro ou motorista é selecionado, busque os detalhes
+    if (name === "carroId" && value) {
+      const carResponse = await fetch(`${API_URL}/carros/${value}`);
+      const carData = await carResponse.json();
+      setCarDetails((prev) => ({ ...prev, [value]: carData }));
+    }
+
+    if (name === "motoristaId" && value) {
+      const driverResponse = await fetch(`${API_URL}/motoristas/${value}`);
+      const driverData = await driverResponse.json();
+      setDriverDetails((prev) => ({ ...prev, [value]: driverData }));
+    }
   };
 
   const formatDate = (date) => {
@@ -217,6 +230,11 @@ const CarReservation = () => {
     // Verificar se os detalhes do carro e do motorista estão disponíveis e se não estão carregando
     if (isLoadingDetails) {
       toast.info("Aguarde enquanto os detalhes estão sendo carregados.");
+      return;
+    }
+
+    if (!carDetails[carroId] || !driverDetails[motoristaId]) {
+      toast.warn("Por favor, selecione um carro e um motorista válidos.");
       return;
     }
 
