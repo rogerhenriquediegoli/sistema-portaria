@@ -208,28 +208,6 @@ const CarReservation = () => {
   };
 
   const handleConfirmModalClose = () => setShowConfirmModal(false);
-  const handleConfirmModalShow = () => {
-    const { carroId, motoristaId, dataFim } = newReservation;
-  
-    if (!carroId || !motoristaId || !dataFim) {
-      toast.warn("Todos os campos devem ser preenchidos antes de continuar.");
-      return;
-    }
-  
-    // Atualizar os detalhes do carro e do motorista antes de abrir o modal
-    const selectedCar = carDetails[carroId];
-    const selectedDriver = driverDetails[motoristaId];
-  
-    if (selectedCar && selectedDriver) {
-      // Atualize os detalhes do carro e motorista apenas se ambos forem encontrados
-      setCarDetails({ ...carDetails, [carroId]: selectedCar });
-      setDriverDetails({ ...driverDetails, [motoristaId]: selectedDriver });
-      setShowConfirmModal(true);  // Mostrar o modal após garantir que temos os dados
-    } else {
-      toast.error("Carro ou motorista não encontrados. Tente novamente.");
-    }
-  };
-  
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -359,7 +337,7 @@ const CarReservation = () => {
             <button
               type="button"
               className="btn btn-info"
-              onClick={handleConfirmModalShow}
+              onClick={handleConfirmModalClose}
               disabled={availableCars.length === 0 || availableDrivers.length === 0}
             >
               Criar Reserva
@@ -518,61 +496,6 @@ const CarReservation = () => {
     </div>
   </div>
 </main>
-
-
-{/* Modal de Confirmação */}
-<Modal show={showConfirmModal} onHide={handleConfirmModalClose}>
-  <Modal.Header closeButton>
-    <Modal.Title className="text-dark"><i className="bi bi-calendar"></i> Confirmar Reserva</Modal.Title>
-  </Modal.Header>
-  <Modal.Body className="text-dark">
-    {newReservation.carroId && newReservation.motoristaId ? (
-      console.log(carDetails[newReservation.carroId]),
-      <>
-        <div className="mb-3">
-          <h5><i className="bi bi-car-front"></i> Carro</h5>
-          <p>
-            <strong>Modelo:</strong> {carDetails[newReservation.carroId]?.modelo} <br />
-            <strong>Placa:</strong> {carDetails[newReservation.carroId]?.placa}
-          </p>
-        </div>
-        
-        <div className="mb-3">
-          <h5><i className="bi bi-person-fill"></i> Motorista</h5>
-          <p>
-            <strong>Nome:</strong> {driverDetails[newReservation.motoristaId]?.nome} <br />
-            <strong>CPF:</strong> {driverDetails[newReservation.motoristaId]?.cpf}
-          </p>
-        </div>
-        
-        <div className="mb-3">
-          <h5><i className="bi bi-calendar-date"></i> Data de Fim</h5>
-          <p><strong>{formatDate(newReservation.dataFim)}</strong></p>
-        </div>
-
-        <div className="alert alert-info" role="alert">
-          <strong>Importante:</strong> Ao confirmar a reserva, você garante o carro e o motorista até a data selecionada.
-        </div>
-      </>
-    ) : (
-      <p>Carregando dados da reserva...</p>
-    )}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={handleConfirmModalClose}>
-      Cancelar
-    </Button>
-    <Button
-      variant="primary"
-      onClick={() => {
-        handleAddReservation();
-        handleConfirmModalClose();
-      }}
-    >
-      Confirmar
-    </Button>
-  </Modal.Footer>
-</Modal>
 
 
 {/* Modal de Cancelamento de Reserva */}
