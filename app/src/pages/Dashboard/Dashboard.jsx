@@ -270,7 +270,7 @@ const handleLogout = () => {
 
       {/* Modal de Confirmação para Logoff */}
 {showModal && (
-  <div className="modal show" tabIndex="-1" style={{ display: 'block' }} aria-hidden="true">
+  <div className="modal show" tabIndex="-1" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }} aria-hidden="true">
     <div className="modal-dialog">
       <div className="modal-content">
         <div className="modal-header">
