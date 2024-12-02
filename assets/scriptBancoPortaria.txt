@@ -1,0 +1,63 @@
+-- Criando a tabela motorista com ID
+CREATE TABLE IF NOT EXISTS motorista (
+    idMotorista SERIAL PRIMARY KEY,  -- ID como chave primária
+    cpf BIGINT UNIQUE NOT NULL,  -- CPF continua único
+    nome VARCHAR(45) NOT NULL,
+    status VARCHAR(20) CHECK (status IN ('Disponível', 'Em Viagem', 'Inativo')) NOT NULL,
+    validade_cnh DATE NOT NULL
+);
+
+-- Criando a tabela carro com ID
+CREATE TABLE IF NOT EXISTS carro (
+    idCarro SERIAL PRIMARY KEY,  -- ID como chave primária
+    placa VARCHAR(7) UNIQUE NOT NULL,  -- Placa continua única
+    modelo VARCHAR(20) NOT NULL,
+    status VARCHAR(20) CHECK (status IN ('Disponível', 'Em uso', 'Reservado', 'Aguardando Revisão', 'Inativo')) NOT NULL,
+    quilometragemAtual INT NOT NULL,
+    capacidadeTanque INT NOT NULL,
+    nivelCombustivelAtual REAL,
+    consumoMedio REAL NOT NULL
+);
+
+-- Criando a tabela reserva com ID referenciando carro e motorista
+CREATE TABLE IF NOT EXISTS reserva (
+    idReserva SERIAL PRIMARY KEY,  -- ID da reserva
+    carro_id INT NOT NULL,  -- Referência ao ID do carro
+    motorista_id INT NOT NULL,  -- Referência ao ID do motorista
+    dataFim DATE NOT NULL,
+    status VARCHAR(20) CHECK (status IN ('Ativa', 'Concluída', 'Cancelada')) NOT NULL,
+
+    -- Definindo as chaves estrangeiras com ON DELETE CASCADE
+    FOREIGN KEY (carro_id) REFERENCES carro(idCarro) ON DELETE CASCADE,  -- Quando o carro for excluído, a reserva será excluída
+    FOREIGN KEY (motorista_id) REFERENCES motorista(idMotorista) ON DELETE CASCADE  -- Quando o motorista for excluído, a reserva será excluída
+);
+
+
+-- Criando a tabela registro com ID referenciando carro e motorista
+CREATE TABLE IF NOT EXISTS registro (
+    idRegistro SERIAL PRIMARY KEY,  -- ID do registro
+    carro_id INT NOT NULL,  -- Referência ao ID do carro
+    motorista_id INT NOT NULL,  -- Referência ao ID do motorista
+    dataSaida TIMESTAMP NOT NULL,
+    dataEntrada TIMESTAMP,
+    quilometragemSaida INT NOT NULL,
+    quilometragemEntrada INT,
+    nivelCombustivelSaida REAL NOT NULL,
+    nivelCombustivelEntrada REAL,
+    abastecimentoExtra REAL,
+
+    -- Definindo as chaves estrangeiras com ON DELETE CASCADE
+    FOREIGN KEY (carro_id) REFERENCES carro(idCarro) ON DELETE CASCADE,  -- Quando o carro for excluído, o registro será excluído
+    FOREIGN KEY (motorista_id) REFERENCES motorista(idMotorista) ON DELETE CASCADE  -- Quando o motorista for excluído, o registro será excluído
+);
+
+
+-- Adicionando a tabela usuario
+CREATE TABLE IF NOT EXISTS usuario (
+    idUsuario SERIAL PRIMARY KEY,  -- ID do usuário
+    nomeUsuario VARCHAR(30) NOT NULL,
+    email TEXT NOT NULL,
+    senha TEXT NOT NULL
+);
+
+
