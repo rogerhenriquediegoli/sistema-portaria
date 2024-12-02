@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { API_URL } from "../App";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import { API_URL } from '../../App';
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import { Modal, Button } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import "./TripRegistration.css";
+import "./TripRegistrationEntry.css";
 
 const TripRegistrationEntry = () => {
   const [cars, setCars] = useState([]);
@@ -129,7 +129,7 @@ const TripRegistrationEntry = () => {
     <div className="register-trip-entry">
       <Header />
       <main className="container my-5">
-        <div className="card shadow">
+        <div className="card-registration card shadow">
           <div className="card-header bg-warning text-white">
             <h4>
               <i className="bi bi-box-arrow-in-left"></i> Registrar Entrada

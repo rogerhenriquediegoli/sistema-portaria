@@ -1,18 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import CarManagement from './pages/CarManagement';
-import DriverManagement from './pages/DriverManagement';
-import TripRegistration from './pages/TripRegistration';
-import CarReservation from './pages/CarReservation';
-import TripHistory from './pages/TripHistory';
-import TripRegistrationExit from './pages/TripRegistrationExit';
-import TripRegistrationEntry from './pages/TripRegistrationEntry';
-import Login from './pages/Login';
-import Cadastro from './pages/Cadastro';
+import Dashboard from './pages/Dashboard/Dashboard.jsx';
+import CarManagement from './pages/CarManagement/CarManagement.jsx';
+import DriverManagement from './pages/DriverManagement/DriverManagement.jsx';
+import TripRegistration from './pages/TripRegistration/TripRegistration.jsx';
+import CarReservation from './pages/CarReservation/CarReservation.jsx';
+import TripHistory from './pages/TripHistory/TripHistory.jsx';
+import TripRegistrationExit from './pages/TripRegistrationExit/TripRegistrationExit.jsx';
+import TripRegistrationEntry from './pages/TripRegistrationEntry/TripRegistrationEntry.jsx';
+import Login from './pages/Login/Login.jsx';
+import Cadastro from './pages/Cadastro/Cadastro.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // Para os ícones do Bootstrap
-import CarReview from './pages/CarReview';
+import CarReview from './pages/CarReview/CarReview.jsx';
 
 // Definir a URL da API
 export const API_URL = 'http://localhost:8080/api'; // Local ou outro servidor de produção
@@ -24,46 +24,46 @@ function App() {
     <Router>
       <Routes>
         {/* Rotas públicas - Login e Cadastro */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Cadastro />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login/>} />
+        <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Cadastro/>} />
         
         {/* Rotas privadas - Protegidas com a verificação de login */}
         <Route
           path="/dashboard"
-          element={isAuthenticated ? <Dashboard apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <Dashboard/> : <Navigate to="/" />}
         />
         <Route
           path="/manage-car"
-          element={isAuthenticated ? <CarManagement apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <CarManagement/> : <Navigate to="/" />}
         />
         <Route
           path="/manage-drivers"
-          element={isAuthenticated ? <DriverManagement apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <DriverManagement/> : <Navigate to="/" />}
         />
         <Route
           path="/register-trip"
-          element={isAuthenticated ? <TripRegistration apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <TripRegistration/> : <Navigate to="/" />}
         />
         <Route
           path="/reserve-car"
-          element={isAuthenticated ? <CarReservation apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <CarReservation/> : <Navigate to="/" />}
         />
         <Route
           path="/trip-history"
-          element={isAuthenticated ? <TripHistory apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <TripHistory/> : <Navigate to="/" />}
         />
         <Route
           path="/register-trip-exit"
-          element={isAuthenticated ? <TripRegistrationExit apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <TripRegistrationExit/> : <Navigate to="/" />}
         />
 
         <Route
           path="/register-trip-entry"
-          element={isAuthenticated ? <TripRegistrationEntry apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <TripRegistrationEntry/> : <Navigate to="/" />}
         />
         <Route
           path="/cars-review"
-          element={isAuthenticated ? <CarReview apiUrl={API_URL} /> : <Navigate to="/" />}
+          element={isAuthenticated ? <CarReview/> : <Navigate to="/" />}
         />
       </Routes>
     </Router>

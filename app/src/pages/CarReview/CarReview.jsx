@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CarReview.css";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import { Modal, Button } from "react-bootstrap";
-import { API_URL } from "../App";
+import { API_URL } from '../../App';
 
 const CarReview = () => {
   const [carros, setCarros] = useState([]);

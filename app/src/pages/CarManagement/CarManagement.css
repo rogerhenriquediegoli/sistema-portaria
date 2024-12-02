@@ -1,7 +1,6 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
 }
 
 header {
@@ -26,15 +25,15 @@ footer {
   padding: 10px 0;
 }
 
-.car-management {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh; /* Garante que ocupa toda a altura da viewport */
-  padding: 0; /* Remove os paddings para centralização perfeita */
-  background-color: #ffffff; /* Pode ajustar conforme necessário */
+.car-management{
+  padding-top: 70px;
 }
 
+.card {
+  margin: 20px auto;
+  max-width: 1400px;
+  z-index: 1;
+}
 
 h3 {
   text-align: center;

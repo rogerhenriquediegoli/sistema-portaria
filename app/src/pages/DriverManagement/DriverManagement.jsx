@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./DriverManagement.css";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { API_URL } from "../App"; // Defina a URL da sua API
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import { API_URL } from '../../App'; // Defina a URL da sua API
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./DriverManagement.css";
 
 const DriverManagement = () => {
   const [drivers, setDrivers] = useState([]);

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { API_URL } from "../App"; // Defina a URL da sua API
-
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import { API_URL } from '../../App'; // Defina a URL da sua API
+import "./TripHistory.css";
 const TripHistory = () => {
   const [records, setRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);

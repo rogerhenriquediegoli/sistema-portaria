@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import "./CarReservation.css";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { API_URL } from "../App";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import { API_URL } from '../../App';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./CarReservation.css";
 
 const CarReservation = () => {
   const [reservations, setReservations] = useState([]);
@@ -35,10 +36,20 @@ const CarReservation = () => {
     setLoading(true);
     try {
       const resResponse = await fetch(`${API_URL}/reservas`);
+      if (!resResponse.ok) {
+        const errorText = await resResponse.text();
+        toast.error(`Erro ao buscar reservas: ${errorText}`);
+        return; // Retorna se houver erro
+      }
       const reservationsData = await resResponse.json();
       setReservations(reservationsData);
 
       const availResponse = await fetch(`${API_URL}/reservas/disponiveis`);
+      if (!availResponse.ok) {
+        const errorText = await availResponse.text();
+        toast.error(`Erro ao buscar disponibilidade: ${errorText}`);
+        return; // Retorna se houver erro
+      }
       const availData = await availResponse.json();
       setAvailableCars(availData.carrosDisponiveis || []);
       setAvailableDrivers(availData.motoristasDisponiveis || []);
@@ -107,30 +118,15 @@ const CarReservation = () => {
     const url = `${API_URL}/reservas?motoristaId=${motoristaId}&carroId=${carroId}&dataFim=${formattedDate}`;
   
     try {
-      // Enviar a requisição
       const res = await fetch(url, { method: "POST" });
   
-      // Verificar status da resposta
       if (!res.ok) {
-        let errorMessage = "Erro desconhecido";
-        let responseText = "";
-  
-        try {
-          const errorData = await res.json();
-          errorMessage = errorData?.message || errorMessage;
-        } catch (jsonError) {
-          responseText = await res.text();
-          errorMessage = responseText || errorMessage;
-        }
-  
-        toast.error(`Erro ao criar reserva: ${errorMessage}`);
-        console.error("Erro na resposta do servidor:", errorMessage);
-        return;
+        const errorText = await res.text();
+        toast.error(`${errorText}`);
+        return; // Retorna se houver erro
       }
   
-      // Tenta obter a resposta como texto antes de processar o JSON
       const responseText = await res.text();
-  
       let createdReservation = { message: responseText };  // Caso a resposta seja uma string
   
       try {

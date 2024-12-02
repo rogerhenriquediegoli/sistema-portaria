@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import "./TripRegistration.css";
 
 const TripRegistration = () => {
@@ -9,7 +9,7 @@ const TripRegistration = () => {
     <div className="register-trip">
       <Header />
       <main className="container my-5">
-        <div className="card shadow">
+        <div className="card-registration card shadow">
           <div className="card-header bg-primary text-white">
             <h4>
               <i className="bi bi-arrow-left-right"></i> Registrar Viagem

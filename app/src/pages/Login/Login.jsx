@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'; // Importando o estilo das notif
 import './Login.css';
 
 // Importando a URL base da API
-import { API_URL } from '../App';
+import { API_URL } from '../../App';
 
 const Login = () => {
   const [identificador, setIdentificador] = useState('');
@@ -17,6 +17,7 @@ const Login = () => {
   // Função para enviar os dados para a API (usando parâmetros na URL)
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (loading) return; // Impede múltiplas chamadas enquanto está carregando
     setLoading(true); // Inicia o carregamento
 
     try {
@@ -40,14 +41,10 @@ const Login = () => {
 
         toast.success('Login realizado com sucesso!');
 
-        // Verifica se já está redirecionando para evitar múltiplas chamadas
-        if (!loading) {
-          setLoading(true); // Inicia o carregamento
-          // Delay de 2 segundos antes de redirecionar para o dashboard
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 2000); // Delay de 2 segundos antes de redirecionar para o dashboard
-        }
+        // Delay de 2 segundos antes de redirecionar para o dashboard
+        setTimeout(() => {
+         location.reload();
+        }, 2000); // Delay de 2 segundos antes de redirecionar para o dashboard
       } else {
         const error = await response.text();
         toast.error(`Erro: ${error}`); // Exibe uma notificação de erro
@@ -58,19 +55,6 @@ const Login = () => {
       setLoading(false); // Finaliza o carregamento
     }
   };
-
-  // Verifica se o usuário está logado (existe o ID no localStorage)
-  const checkLoginStatus = () => {
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      navigate('/dashboard'); // Se já estiver logado, vai direto para o dashboard
-    }
-  };
-
-  // Verifica o login ao carregar a página
-  useEffect(() => {
-    checkLoginStatus();
-  }, []);
 
   return (
     <div className="login-container">

@@ -1,12 +1,8 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-image: url('../assets/images/arte-projeto.png');
+    background-image: url('../../assets/images/arte-projeto.png');
     color: #fff;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
   
   .login-container {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from 'react-router-dom';
 import './Cadastro.css';
-import { API_URL } from '../App';
+import { API_URL } from '../../App';
 import { ToastContainer, toast } from 'react-toastify';  // Importando o ToastContainer e toast
 import 'react-toastify/dist/ReactToastify.css'; // Importando o CSS do Toastify
 

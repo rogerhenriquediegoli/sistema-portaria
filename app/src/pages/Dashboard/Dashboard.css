@@ -1,14 +1,14 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
+  background-image: url('../../assets/images/arte-projeto.png');
 }
 
 .dashboard {
   padding: 20px;
+  max-width: 1350px;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  margin: 0 auto;
   align-items: center;
   background-color: #f8f9fa;
   box-shadow: 1px 1px 4px black;

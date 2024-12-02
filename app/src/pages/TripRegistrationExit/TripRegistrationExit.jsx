@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { API_URL } from "../App"; // Importando a URL da API
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import { API_URL } from '../../App'; // Importando a URL da API
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import { Modal, Button } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"; // Importando o useNavigate
 import "react-toastify/dist/ReactToastify.css";
-import "./TripRegistration.css";
+import "./TripRegistrationExit.css";
 
 const TripRegistrationExit = () => {
   const [cars, setCars] = useState([]);
@@ -193,7 +193,7 @@ const TripRegistrationExit = () => {
     <div className="register-trip-exit">
       <Header />
       <main className="container my-5">
-        <div className="card shadow">
+        <div className="card-registration card shadow">
           <div className="card-header bg-success text-white">
             <h4>
               <i className="bi bi-box-arrow-up-right"></i> Registrar Saída

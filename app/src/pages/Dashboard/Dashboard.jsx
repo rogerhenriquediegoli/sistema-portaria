@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { API_URL } from '../App';
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import { API_URL } from '../../App';
 import { ToastContainer, toast} from 'react-toastify';
 
 const Dashboard = () => {
@@ -15,70 +15,39 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Recuperando o userId do localStorage
-    const userId = localStorage.getItem('userId');
-    
-    // Permitir a navegação (habilitar o botão de voltar) ao acessar o Dashboard
-    window.onpopstate = function () {
-      // Permite que o botão de voltar funcione normalmente
-      window.history.go(0);
-    };
-
-      // Fazendo a requisição para obter o nome do usuário
-      const fetchUserName = async () => {
+    // Adiciona um delay antes de verificar o userId
+      const userId = localStorage.getItem('userId');
+      const fetchData = async () => {
+        setLoading(true); // Inicia o carregamento
         try {
-          const response = await fetch(`${API_URL}/usuarios/${userId}`);
-          if (response.ok) {
-            const data = await response.json();
-            setUserName(data.nomeUsuario);  // Assume que a API retorna o nome do usuário
-          } else {
-            console.error('Erro ao obter dados do usuário');
+          const [userResponse, carStatsResponse, driverStatsResponse] = await Promise.all([
+            fetch(`${API_URL}/usuarios/${userId}`),
+            fetch(`${API_URL}/carros/count-status`),
+            fetch(`${API_URL}/motoristas/count-status`)
+          ]);
+
+          if (!userResponse.ok || !carStatsResponse.ok || !driverStatsResponse.ok) {
+            throw new Error('Erro ao buscar dados');
           }
+
+          const userData = await userResponse.json();
+          const carStatsData = await carStatsResponse.json();
+          const driverStatsData = await driverStatsResponse.json();
+
+          setUserName(userData.nomeUsuario);
+          setCarsData(carStatsData);
+          setDriversData(driverStatsData);
         } catch (error) {
-          console.error('Erro de rede', error);
+          toast.error('Erro ao carregar dados do dashboard.');
+          console.error(error);
         } finally {
-          setLoading(false); // Fim do carregamento
+          setLoading(false); // Finaliza o carregamento
         }
       };
-      
-      fetchUserName();
-    
+
+      fetchData();
+    return 
   }, [navigate]);
-
-  useEffect(() => {
-    // Função para buscar as estatísticas de carros por status
-    const fetchCarStats = async () => {
-      try {
-        const response = await fetch(`${API_URL}/carros/count-status`);
-        if (response.ok) {
-          const data = await response.json();
-          setCarsData(data); // Supondo que a resposta seja um JSON válido
-        } else {
-          console.error('Erro ao obter dados dos carros');
-        }
-      } catch (error) {
-        console.error('Erro de rede', error);
-      }
-    };
-
-    // Função para buscar as estatísticas de motoristas por status
-    const fetchDriverStats = async () => {
-      try {
-        const response = await fetch(`${API_URL}/motoristas/count-status`);
-        if (response.ok) {
-          const data = await response.json();
-          setDriversData(data); // Supondo que a resposta seja um JSON válido
-        } else {
-          console.error('Erro ao obter dados dos motoristas');
-        }
-      } catch (error) {
-        console.error('Erro de rede', error);
-      }
-    };
-
-    fetchCarStats();
-    fetchDriverStats();
-  }, []); // Executa a primeira vez quando o componente for montado
 
   const totalCars = carsData["Disponível"] + carsData["Em uso"] + carsData["Aguardando Revisão"] + carsData["Reservado"] + carsData["Inativo"];
   const totalDrivers = driversData["Disponível"] + driversData["Em Viagem"] + driversData["Inativos"];
@@ -91,16 +60,10 @@ const handleLogout = () => {
   // Exibe a notificação de sucesso de logout com um delay
   setShowModal(false)
   toast.success('Logout realizado com sucesso!');
-
-  // Limpar o histórico do navegador para evitar voltar para a página anterior
-  window.history.pushState(null, '', window.location.href);  // Limpa o estado atual do histórico
-  window.onpopstate = function () {
-    window.history.go(1);  // Impede o botão de voltar
-  };
   
   // Redireciona para a página de login após um delay de 2 segundos
   setTimeout(() => {
-    navigate('/', { replace: true }); // Usando `replace` para evitar que a página de dashboard fique no histórico
+    location.reload();
   }, 2000); // Delay de 2 segundos antes de redirecionar
 };
 
@@ -109,6 +72,7 @@ const handleLogout = () => {
     <div className="dashboard">
       <Header />
       <main className="container py-5">
+        <br />
         <br />
         <br />
         <h1 className="text-center mb-5">Dashboard</h1>
