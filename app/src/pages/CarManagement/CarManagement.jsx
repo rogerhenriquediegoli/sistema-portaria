@@ -94,12 +94,12 @@ const CarManagement = () => {
         });
         toast.success("Carro cadastrado com sucesso!");
       } else {
-        const errorData = await response.json();
-        toast.error(errorData.error || "Erro ao cadastrar carro.");
+        const errorData = await response.json(); // Tenta obter a mensagem de erro do JSON
+        toast.error(errorData.error || "Erro ao cadastrar carro."); // Exibe a mensagem de erro
       }
     } catch (error) {
       console.error("Erro ao cadastrar carro", error);
-      toast.error("Erro ao cadastrar carro.");
+      toast.error("Erro ao cadastrar carro. Verifique sua conexão.");
     }
     setShowModal(false); // Fechar modal
   };
@@ -131,7 +131,6 @@ const CarManagement = () => {
   // Confirmação de atualização no modal
   const confirmSaveCar = async () => {
     try {
-      // Corpo da requisição de atualização com os campos placa e status apenas
       const response = await fetch(`${API_URL}/carros/${editingCar.idCarro}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -145,7 +144,7 @@ const CarManagement = () => {
         setCars(cars.map((car) => (car.idCarro === updatedCar.idCarro ? updatedCar : car)));
         setEditingCar(null); // Resetando a edição
         toast.success("Carro atualizado com sucesso!");
-
+        
         // Limpar os dados do formulário após a atualização
         setNewCar({
           placa: "",
@@ -156,12 +155,12 @@ const CarManagement = () => {
           quilometragemAtual: "",
         });
       } else {
-        const errorData = await response.text();
-        toast.error(errorData);
+        const errorData = await response.json(); // Tenta obter a mensagem de erro do JSON
+        toast.error(errorData.error || "Erro ao atualizar carro."); // Exibe a mensagem de erro
       }
     } catch (error) {
       console.error("Erro ao salvar as alterações", error);
-      toast.error("Erro ao salvar as alterações.");
+      toast.error("Erro ao salvar as alterações. Verifique sua conexão.");
     }
     setShowModal(false); // Fechar modal
   };
@@ -178,12 +177,12 @@ const CarManagement = () => {
         setCars(cars.filter((car) => car.idCarro !== carToDelete.idCarro));
         toast.success("Carro excluído com sucesso, incluindo reservas e registros de viagem!");
       } else {
-        const errorData = await response.json();
-        toast.error(errorData.error || "Erro ao excluir carro.");
+        const errorData = await response.json(); // Tenta obter a mensagem de erro do JSON
+        toast.error(errorData.error || "Erro ao excluir carro."); // Exibe a mensagem de erro
       }
     } catch (error) {
       console.error("Erro ao excluir carro", error);
-      toast.error("Erro ao excluir carro.");
+      toast.error("Erro ao excluir carro. Verifique sua conexão.");
     }
 
     setShowDeleteModal(false); // Fechar o modal de exclusão
