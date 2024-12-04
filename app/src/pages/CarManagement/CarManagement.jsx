@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./CarManagement.css";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { API_URL } from '../../App'; // Defina a URL da sua API
+import { API_URL } from '../../App';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CarManagement.css";
@@ -20,15 +20,15 @@ const CarManagement = () => {
   const [editingCar, setEditingCar] = useState(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [showModal, setShowModal] = useState(false); // Controle do modal de confirmação
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // Controle do modal de exclusão
-  const [carToDelete, setCarToDelete] = useState(null); // Carro que será excluído
-  const [loading, setLoading] = useState(true); // Estado para controle de carregamento
+  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [carToDelete, setCarToDelete] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Carregar os carros ao iniciar
   useEffect(() => {
     const fetchCars = async () => {
-      setLoading(true); // Iniciar carregamento
+      setLoading(true); 
       try {
         const response = await fetch(`${API_URL}/carros`);
         if (response.ok) {
@@ -40,7 +40,7 @@ const CarManagement = () => {
       } catch (error) {
         console.error("Erro de rede", error);
       } finally {
-        setLoading(false); // Finalizar carregamento
+        setLoading(false); 
       }
     };
     fetchCars();
@@ -62,14 +62,12 @@ const CarManagement = () => {
     );
   };
 
-  // Função para adicionar um novo carro
   const handleAddCar = async () => {
     if (!newCar.placa || !newCar.modelo || !validateCarData(newCar)) {
       toast.error("Preencha todos os campos corretamente.");
       return;
     }
 
-    // Exibir modal de confirmação
     setShowModal(true);
   };
 
@@ -94,17 +92,16 @@ const CarManagement = () => {
         });
         toast.success("Carro cadastrado com sucesso!");
       } else {
-        const errorData = await response.json(); // Tenta obter a mensagem de erro do JSON
-        toast.error(errorData.error || "Erro ao cadastrar carro."); // Exibe a mensagem de erro
+        const errorData = await response.json(); 
+        toast.error(errorData.error || "Erro ao cadastrar carro."); 
       }
     } catch (error) {
       console.error("Erro ao cadastrar carro", error);
       toast.error("Erro ao cadastrar carro. Verifique sua conexão.");
     }
-    setShowModal(false); // Fechar modal
+    setShowModal(false); 
   };
 
-  // Função para editar um carro
   const handleEditCar = (car) => {
     setEditingCar(car);
     setNewCar({
@@ -117,14 +114,12 @@ const CarManagement = () => {
     });
   };
 
-  // Função para salvar as alterações de um carro
+ 
   const handleSaveCar = async () => {
     if (!newCar.placa || !newCar.status) {
       toast.error("Preencha a placa e o status.");
       return;
     }
-
-    // Exibir modal de confirmação antes de salvar
     setShowModal(true);
   };
 
@@ -142,10 +137,9 @@ const CarManagement = () => {
       if (response.ok) {
         const updatedCar = await response.json();
         setCars(cars.map((car) => (car.idCarro === updatedCar.idCarro ? updatedCar : car)));
-        setEditingCar(null); // Resetando a edição
+        setEditingCar(null); 
         toast.success("Carro atualizado com sucesso!");
         
-        // Limpar os dados do formulário após a atualização
         setNewCar({
           placa: "",
           modelo: "",
@@ -155,14 +149,14 @@ const CarManagement = () => {
           quilometragemAtual: "",
         });
       } else {
-        const errorData = await response.json(); // Tenta obter a mensagem de erro do JSON
-        toast.error(errorData.error || "Erro ao atualizar carro."); // Exibe a mensagem de erro
+        const errorData = await response.json(); 
+        toast.error(errorData.error || "Erro ao atualizar carro."); 
       }
     } catch (error) {
       console.error("Erro ao salvar as alterações", error);
       toast.error("Erro ao salvar as alterações. Verifique sua conexão.");
     }
-    setShowModal(false); // Fechar modal
+    setShowModal(false); 
   };
 
   // Função para excluir um carro
@@ -188,15 +182,14 @@ const CarManagement = () => {
     setShowDeleteModal(false); // Fechar o modal de exclusão
   };
 
-  // Função para confirmar exclusão do carro
   const confirmDeleteCar = (car) => {
-    setCarToDelete(car); // Definir o carro a ser excluído
-    setShowDeleteModal(true); // Exibir o modal de confirmação de exclusão
+    setCarToDelete(car);
+    setShowDeleteModal(true); 
   };
 
   // Função para sair da edição e voltar ao cadastro normal
   const handleCancelEdit = () => {
-    setEditingCar(null); // Resetar o estado de edição
+    setEditingCar(null);
     setNewCar({
       placa: "",
       modelo: "",
@@ -204,7 +197,7 @@ const CarManagement = () => {
       capacidadeTanque: "",
       consumoMedio: "",
       quilometragemAtual: "",
-    }); // Resetar os dados do carro
+    }); 
   };
 
   // Filtragem dos carros
@@ -396,11 +389,11 @@ const CarManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading ? ( // Verifica se está carregando
+                {loading ? ( 
                   <tr>
                     <td colSpan="8" className="text-center">Carregando...</td>
                   </tr>
-                ) : filteredCars.length === 0 ? ( // Verifica se não há carros
+                ) : filteredCars.length === 0 ? ( 
                   <tr>
                     <td colSpan="8" className="text-center">Nenhum carro encontrado</td>
                   </tr>
@@ -418,15 +411,15 @@ const CarManagement = () => {
                         <button
                           className="btn btn-sm btn-warning me-2"
                           onClick={() => handleEditCar(car)}
-                          disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} // Desabilita se o status não for permitido
+                          disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} 
                         >
                           <i className="bi bi-pencil"></i> Editar
                         </button>
 
                         <button
                           className="btn btn-sm btn-danger"
-                          onClick={() => confirmDeleteCar(car)} // Exibir modal de confirmação de exclusão
-                          disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} // Desabilita se o status não for válido para exclusão
+                          onClick={() => confirmDeleteCar(car)} 
+                          disabled={car.status !== "Disponível" && car.status !== "Inativo" && car.status !== "Aguardando Revisão"} 
                         >
                           <i className="bi bi-trash"></i> Excluir
                         </button>
@@ -524,8 +517,7 @@ const CarManagement = () => {
           </div>
         </div>
       )}
-
-      {/* ToastContainer */}
+    
       <ToastContainer />
     </div>
   );

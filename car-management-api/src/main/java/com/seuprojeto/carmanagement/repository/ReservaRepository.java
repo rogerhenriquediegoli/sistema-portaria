@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
-    // Método derivado para buscar reserva ativa vinculando carro e motorista
+    // Buscar reserva ativa vinculando carro e motorista
     Optional<Reserva> findByCarroIdAndMotoristaIdAndStatus(Long carroId, Long motoristaId, String status);
 
     boolean existsByMotoristaIdAndStatus(Long motoristaId, String status);

@@ -2,14 +2,14 @@ header {
     position: block;
     top: 0;
     left: 50%;
-    transform: translateX(-50%); /* Centraliza horizontalmente */
-    width: 90%; /* Usando uma largura flexível em vez de 50% */
-    max-width: 1360px; /* Limita a largura máxima para não ocupar muito espaço em telas grandes */
-    background-color: #343a40; /* Cor de fundo */
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1360px;
+    background-color: #343a40; 
     color: white;
     margin-bottom: 100px;
-    padding: 20px 0; /* Espaço interno */
-    box-sizing: border-box; /* Inclui padding e border no cálculo da largura */
+    padding: 20px 0; 
+    box-sizing: border-box;
   }
   
   header h1 {

@@ -11,14 +11,14 @@ import TripRegistrationEntry from './pages/TripRegistrationEntry/TripRegistratio
 import Login from './pages/Login/Login.jsx';
 import Cadastro from './pages/Cadastro/Cadastro.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css'; // Para os ícones do Bootstrap
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import CarReview from './pages/CarReview/CarReview.jsx';
 
-// Definir a URL da API
+// URL da API centralizada em App.jsx
 export const API_URL = 'https://sistema-portaria-api.onrender.com/api'; // Local ou outro servidor de produção
 
 function App() {
-  const isAuthenticated = localStorage.getItem('userId'); // Verifica se o usuário está logado
+  const isAuthenticated = localStorage.getItem('userId');
   
   return (
       <Routes>

@@ -3,15 +3,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from 'react-router-dom';
 import './Cadastro.css';
 import { API_URL } from '../../App';
-import { ToastContainer, toast } from 'react-toastify';  // Importando o ToastContainer e toast
-import 'react-toastify/dist/ReactToastify.css'; // Importando o CSS do Toastify
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Cadastro = () => {
   const [nomeUsuario, setNomeUsuario] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false); // Estado para controle de carregamento
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Função para enviar os dados do formulário para a API
@@ -20,7 +20,7 @@ const Cadastro = () => {
     
     // Validação de senha
     if (senha !== confirmPassword) {
-      toast.error('As senhas não coincidem!'); // Notificação de erro
+      toast.error('As senhas não coincidem!'); 
       return;
     }
 
@@ -31,7 +31,7 @@ const Cadastro = () => {
       senha,
     };
 
-    setLoading(true); // Iniciar o carregamento
+    setLoading(true);
 
     try {
       // Enviar requisição POST para o backend
@@ -46,20 +46,20 @@ const Cadastro = () => {
       // Verifica a resposta da API
       if (response.ok) {
         const data = await response.json();
-        toast.success('Cadastro realizado com sucesso!'); // Notificação de sucesso
+        toast.success('Cadastro realizado com sucesso!');
         setTimeout(() => {
-          navigate('/'); // Usando `replace` para evitar que a página de dashboard fique no histórico
+          navigate('/');
         }, 2000); // Delay de 2 segundos antes de redirecionar
         
       } else {
         const errorData = await response.json();
-        toast.error(errorData.message || 'Erro ao cadastrar. Tente novamente.'); // Notificação de erro
+        toast.error(errorData.message || 'Erro ao cadastrar. Tente novamente.');
       }
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
-      toast.error('Erro ao cadastrar. Tente novamente mais tarde.'); // Notificação de erro
+      toast.error('Erro ao cadastrar. Tente novamente mais tarde.'); 
     } finally {
-      setLoading(false); // Finalizar o carregamento
+      setLoading(false);
     }
   };
 
@@ -118,13 +118,12 @@ const Cadastro = () => {
             />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Carregando...' : 'Cadastrar'} {/* Alterar texto do botão */}
+            {loading ? 'Carregando...' : 'Cadastrar'} 
           </button>
         </form>
         <Link to="/" className="registro">Já tem uma conta? Faça login</Link>
       </div>
-      
-      {/* Adicionando o ToastContainer para exibir as notificações */}
+
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar newestOnTop />
     </div>
   );

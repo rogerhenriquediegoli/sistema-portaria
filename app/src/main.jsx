@@ -1,12 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'  // Importando o BrowserRouter
+import { BrowserRouter } from 'react-router-dom' 
 import './index.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter basename={window.location.pathname || '/'}>  {/* Definindo o basename */}
+    <BrowserRouter basename={window.location.pathname || '/'}> 
       <App />
     </BrowserRouter>
   </StrictMode>,
